@@ -2,6 +2,7 @@ import express, { Application } from "express";
 import dotenv from "dotenv";
 import userRoutes from "./routes/userRoutes";
 import errorHandler from "./middlewares/errorHandler";
+import formRoutes from "./routes/formRoutes";
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ app.get("/", (req, res) => {
 
 app.use(express.json());
 app.use(`${baseUrl}/users`, userRoutes);
+app.use(`${baseUrl}/forms`, formRoutes);
 app.use(errorHandler);
 
 export default app;
