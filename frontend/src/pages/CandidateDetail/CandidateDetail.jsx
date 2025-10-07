@@ -123,40 +123,57 @@ const CandidateDetail = () => {
                 {candidate.email}
               </Typography>
               
-              <Grid container spacing={2} sx={{ mb: 3 }}>
-                <Grid item xs={12} sm={6} md={3}>
+              <Box sx={{ 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                gap: 2,
+                mb: 3
+              }}>
+                <Box sx={{ 
+                  minWidth: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(25% - 12px)' },
+                  flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(25% - 12px)' }
+                }}>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Phone sx={{ mr: 1, color: 'text.secondary' }} />
                     <Typography variant="body2" color="text.secondary">
                       {candidate.phone}
                     </Typography>
                   </Box>
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                </Box>
+                <Box sx={{ 
+                  minWidth: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(25% - 12px)' },
+                  flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(25% - 12px)' }
+                }}>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <LocationOn sx={{ mr: 1, color: 'text.secondary' }} />
                     <Typography variant="body2" color="text.secondary">
                       {candidate.location}
                     </Typography>
                   </Box>
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                </Box>
+                <Box sx={{ 
+                  minWidth: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(25% - 12px)' },
+                  flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(25% - 12px)' }
+                }}>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Work sx={{ mr: 1, color: 'text.secondary' }} />
                     <Typography variant="body2" color="text.secondary">
                       {candidate.availability}
                     </Typography>
                   </Box>
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                </Box>
+                <Box sx={{ 
+                  minWidth: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(25% - 12px)' },
+                  flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(25% - 12px)' }
+                }}>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <TrendingUp sx={{ mr: 1, color: 'text.secondary' }} />
                     <Typography variant="body2" color="text.secondary">
                       Aplicó el {formatDate(candidate.appliedAt)}
                     </Typography>
                   </Box>
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
 
               {/* Suitability Score */}
               <Card variant="outlined" sx={{ p: 2, backgroundColor: 'background.paper' }}>
@@ -179,55 +196,61 @@ const CandidateDetail = () => {
           </Box>
         </Paper>
 
-        <Grid container spacing={4}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {/* Technical Skills */}
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 4, height: '100%' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                <Work sx={{ mr: 1, color: 'primary.main' }} />
-                <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                  Habilidades Técnicas
-                </Typography>
-              </Box>
-              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                {candidate.technicalSkills.map((skill, index) => (
-                  <Chip
-                    key={index}
-                    label={skill}
-                    color="primary"
-                    variant="outlined"
-                    sx={{ mb: 1 }}
-                  />
-                ))}
-              </Stack>
-            </Paper>
-          </Grid>
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'column', md: 'row' },
+            gap: 4
+          }}>
+            <Box sx={{ flex: 1 }}>
+              <Paper sx={{ p: 4, height: '100%' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                  <Work sx={{ mr: 1, color: 'primary.main' }} />
+                  <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                    Habilidades Técnicas
+                  </Typography>
+                </Box>
+                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                  {candidate.technicalSkills.map((skill, index) => (
+                    <Chip
+                      key={index}
+                      label={skill}
+                      color="primary"
+                      variant="outlined"
+                      sx={{ mb: 1 }}
+                    />
+                  ))}
+                </Stack>
+              </Paper>
+            </Box>
 
-          {/* Soft Skills */}
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 4, height: '100%' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                <Person sx={{ mr: 1, color: 'secondary.main' }} />
-                <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                  Habilidades Blandas
-                </Typography>
-              </Box>
-              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                {candidate.softSkills.map((skill, index) => (
-                  <Chip
-                    key={index}
-                    label={skill}
-                    color="secondary"
-                    variant="outlined"
-                    sx={{ mb: 1 }}
-                  />
-                ))}
-              </Stack>
-            </Paper>
-          </Grid>
+            {/* Soft Skills */}
+            <Box sx={{ flex: 1 }}>
+              <Paper sx={{ p: 4, height: '100%' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                  <Person sx={{ mr: 1, color: 'secondary.main' }} />
+                  <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                    Habilidades Blandas
+                  </Typography>
+                </Box>
+                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                  {candidate.softSkills.map((skill, index) => (
+                    <Chip
+                      key={index}
+                      label={skill}
+                      color="secondary"
+                      variant="outlined"
+                      sx={{ mb: 1 }}
+                    />
+                  ))}
+                </Stack>
+              </Paper>
+            </Box>
+          </Box>
 
           {/* Professional Interests */}
-          <Grid item xs={12}>
+          <Box>
             <Paper sx={{ p: 4 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                 <Star sx={{ mr: 1, color: 'warning.main' }} />
@@ -247,10 +270,10 @@ const CandidateDetail = () => {
                 ))}
               </Stack>
             </Paper>
-          </Grid>
+          </Box>
 
           {/* Work Experience */}
-          <Grid item xs={12}>
+          <Box>
             <Paper sx={{ p: 4 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                 <School sx={{ mr: 1, color: 'info.main' }} />
@@ -296,8 +319,8 @@ const CandidateDetail = () => {
                 </Box>
               )}
             </Paper>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
 
         {/* Action Buttons */}
         <Box sx={{ mt: 4, display: 'flex', gap: 2, justifyContent: 'center' }}>

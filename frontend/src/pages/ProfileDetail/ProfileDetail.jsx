@@ -141,9 +141,13 @@ const ProfileDetail = () => {
 
           <Divider sx={{ my: 3 }} />
 
-          <Grid container spacing={4}>
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'column', md: 'row' },
+            gap: 4
+          }}>
             {/* Requirements */}
-            <Grid item xs={12} md={6}>
+            <Box sx={{ flex: 1 }}>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
                 Requisitos Principales
               </Typography>
@@ -155,10 +159,10 @@ const ProfileDetail = () => {
                   </Box>
                 ))}
               </Stack>
-            </Grid>
+            </Box>
 
             {/* Benefits */}
-            <Grid item xs={12} md={6}>
+            <Box sx={{ flex: 1 }}>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
                 Beneficios Ofrecidos
               </Typography>
@@ -170,8 +174,8 @@ const ProfileDetail = () => {
                   </Box>
                 ))}
               </Stack>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
 
           <Box sx={{ mt: 3, display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
             <CalendarToday sx={{ mr: 1, fontSize: 16 }} />
@@ -203,13 +207,23 @@ const ProfileDetail = () => {
                 {matchingCandidates.length} estudiante{matchingCandidates.length !== 1 ? 's' : ''} encontrado{matchingCandidates.length !== 1 ? 's' : ''}
               </Typography>
 
-              <Grid container spacing={3}>
+              <Box sx={{ 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                gap: 3
+              }}>
                 {matchingCandidates.map((candidate) => (
-                  <Grid item xs={12} sm={6} lg={4} key={candidate.id}>
+                  <Box 
+                    key={candidate.id}
+                    sx={{ 
+                      minWidth: { xs: '100%', sm: 'calc(50% - 12px)', lg: 'calc(33.333% - 16px)' },
+                      flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', lg: '1 1 calc(33.333% - 16px)' }
+                    }}
+                  >
                     <CandidateCard candidate={candidate} showSuitability={true} />
-                  </Grid>
+                  </Box>
                 ))}
-              </Grid>
+              </Box>
             </>
           )}
         </Paper>

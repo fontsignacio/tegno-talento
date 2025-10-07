@@ -3,63 +3,30 @@ import {
   Box,
   Container,
   Typography,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Grid,
   Alert,
   CircularProgress,
-  Chip,
   Paper,
+  Button,
 } from '@mui/material';
 import {
-  Search,
-  FilterList,
   Person,
 } from '@mui/icons-material';
 import { useProfilesQuery } from '../../hooks/useProfilesQuery';
 import ProfileCard from '../../components/ProfileCard/ProfileCard';
+import ProfileSearchForm from '../../forms/ProfileSearchForm';
 
 const Profiles = () => {
-  const [filters, setFilters] = useState({
-    area: '',
-    career: '',
-    experienceLevel: '',
-    search: '',
-  });
+  const [filters, setFilters] = useState({});
 
   const { data, isLoading, error } = useProfilesQuery(filters);
 
-  const handleFilterChange = (field) => (event) => {
-    setFilters(prev => ({
-      ...prev,
-      [field]: event.target.value,
-    }));
+  const handleSearch = (searchFilters) => {
+    setFilters(searchFilters);
   };
 
-  const handleSearchChange = (event) => {
-    setFilters(prev => ({
-      ...prev,
-      search: event.target.value,
-    }));
+  const handleClear = () => {
+    setFilters({});
   };
-
-  const clearFilters = () => {
-    setFilters({
-      area: '',
-      career: '',
-      experienceLevel: '',
-      search: '',
-    });
-  };
-
-  const areas = ['Tecnología', 'Análisis', 'Diseño', 'Gestión'];
-  const careers = ['Ingeniería en Sistemas', 'Diseño Gráfico', 'Administración'];
-  const experienceLevels = ['Junior', 'Semi-Senior', 'Senior'];
-
-  const hasActiveFilters = Object.values(filters).some(value => value !== '');
 
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default', py: 4 }}>
@@ -76,130 +43,12 @@ const Profiles = () => {
         </Box>
 
         {/* Filters */}
-        <Paper sx={{ p: 3, mb: 4 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-            <FilterList sx={{ mr: 1, color: 'primary.main' }} />
-            <Typography variant="h6" sx={{ fontWeight: 600 }}>
-              Filtros de Búsqueda
-            </Typography>
-          </Box>
-
-          <Grid container spacing={3}>
-            {/* Search */}
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Buscar perfiles"
-                placeholder="Escribe palabras clave..."
-                value={filters.search}
-                onChange={handleSearchChange}
-                InputProps={{
-                  startAdornment: <Search sx={{ mr: 1, color: 'text.secondary' }} />,
-                }}
-              />
-            </Grid>
-
-            {/* Area Filter */}
-            <Grid item xs={12} sm={6} md={2}>
-              <FormControl fullWidth>
-                <InputLabel>Área</InputLabel>
-                <Select
-                  value={filters.area}
-                  label="Área"
-                  onChange={handleFilterChange('area')}
-                >
-                  <MenuItem value="">Todas</MenuItem>
-                  {areas.map((area) => (
-                    <MenuItem key={area} value={area}>
-                      {area}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-
-            {/* Career Filter */}
-            <Grid item xs={12} sm={6} md={2}>
-              <FormControl fullWidth>
-                <InputLabel>Carrera</InputLabel>
-                <Select
-                  value={filters.career}
-                  label="Carrera"
-                  onChange={handleFilterChange('career')}
-                >
-                  <MenuItem value="">Todas</MenuItem>
-                  {careers.map((career) => (
-                    <MenuItem key={career} value={career}>
-                      {career}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-
-            {/* Experience Level Filter */}
-            <Grid item xs={12} sm={6} md={2}>
-              <FormControl fullWidth>
-                <InputLabel>Experiencia</InputLabel>
-                <Select
-                  value={filters.experienceLevel}
-                  label="Experiencia"
-                  onChange={handleFilterChange('experienceLevel')}
-                >
-                  <MenuItem value="">Todos</MenuItem>
-                  {experienceLevels.map((level) => (
-                    <MenuItem key={level} value={level}>
-                      {level}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-          </Grid>
-
-          {/* Active Filters */}
-          {hasActiveFilters && (
-            <Box sx={{ mt: 3, display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-              <Typography variant="body2" color="text.secondary">
-                Filtros activos:
-              </Typography>
-              {filters.area && (
-                <Chip
-                  label={`Área: ${filters.area}`}
-                  onDelete={() => setFilters(prev => ({ ...prev, area: '' }))}
-                  size="small"
-                />
-              )}
-              {filters.career && (
-                <Chip
-                  label={`Carrera: ${filters.career}`}
-                  onDelete={() => setFilters(prev => ({ ...prev, career: '' }))}
-                  size="small"
-                />
-              )}
-              {filters.experienceLevel && (
-                <Chip
-                  label={`Experiencia: ${filters.experienceLevel}`}
-                  onDelete={() => setFilters(prev => ({ ...prev, experienceLevel: '' }))}
-                  size="small"
-                />
-              )}
-              {filters.search && (
-                <Chip
-                  label={`Búsqueda: ${filters.search}`}
-                  onDelete={() => setFilters(prev => ({ ...prev, search: '' }))}
-                  size="small"
-                />
-              )}
-              <Chip
-                label="Limpiar todos"
-                onClick={clearFilters}
-                size="small"
-                color="secondary"
-                variant="outlined"
-              />
-            </Box>
-          )}
+        <Paper sx={{ mb: 4 }}>
+          <ProfileSearchForm 
+            onSearch={handleSearch}
+            onClear={handleClear}
+            isLoading={isLoading}
+          />
         </Paper>
 
         {/* Results */}
@@ -218,18 +67,19 @@ const Profiles = () => {
               No hay perfiles disponibles
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {hasActiveFilters
+              {Object.keys(filters).length > 0
                 ? 'No se encontraron perfiles que coincidan con los filtros seleccionados.'
                 : 'No hay perfiles disponibles en este momento.'}
             </Typography>
-            {hasActiveFilters && (
+            {Object.keys(filters).length > 0 && (
               <Box sx={{ mt: 2 }}>
-                <Chip
-                  label="Limpiar filtros"
-                  onClick={clearFilters}
-                  color="primary"
+                <Button
                   variant="outlined"
-                />
+                  onClick={handleClear}
+                  color="primary"
+                >
+                  Limpiar filtros
+                </Button>
               </Box>
             )}
           </Box>
@@ -243,13 +93,23 @@ const Profiles = () => {
             </Box>
 
             {/* Profiles Grid */}
-            <Grid container spacing={3}>
+            <Box sx={{ 
+              display: 'flex', 
+              flexWrap: 'wrap', 
+              gap: 3
+            }}>
               {data.data.map((profile) => (
-                <Grid item xs={12} sm={6} lg={4} key={profile.id}>
+                <Box 
+                  key={profile.id}
+                  sx={{ 
+                    minWidth: { xs: '100%', sm: 'calc(50% - 12px)', lg: 'calc(33.333% - 16px)' },
+                    flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', lg: '1 1 calc(33.333% - 16px)' }
+                  }}
+                >
                   <ProfileCard profile={profile} />
-                </Grid>
+                </Box>
               ))}
-            </Grid>
+            </Box>
           </>
         )}
       </Container>

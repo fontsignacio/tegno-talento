@@ -14,7 +14,10 @@ import {
   SmartToy,
   Person,
 } from '@mui/icons-material';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 import { useChatbotMutation } from '../../hooks/useChatbotQuery';
+import { chatbotSchema, defaultValues } from '../../schemas/chatbotSchema';
 
 const Chatbot = () => {
   const [messages, setMessages] = useState([
@@ -25,9 +28,19 @@ const Chatbot = () => {
       timestamp: new Date(),
     },
   ]);
-  const [inputMessage, setInputMessage] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
   const chatbotMutation = useChatbotMutation();
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: yupResolver(chatbotSchema),
+    defaultValues,
+  });
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -37,28 +50,31 @@ const Chatbot = () => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim()) return;
-
+  const onSubmit = async (data) => {
     const userMessage = {
       id: Date.now(),
-      text: inputMessage,
+      text: data.message,
       isBot: false,
       timestamp: new Date(),
     };
 
     setMessages(prev => [...prev, userMessage]);
-    setInputMessage('');
+    reset();
+    setIsTyping(true);
 
     try {
-      const response = await chatbotMutation.mutateAsync(inputMessage);
+      const response = await chatbotMutation.mutateAsync(data.message);
       const botMessage = {
         id: Date.now() + 1,
         text: response.data.response,
         isBot: true,
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, botMessage]);
+      
+      setTimeout(() => {
+        setMessages(prev => [...prev, botMessage]);
+        setIsTyping(false);
+      }, 1000);
     } catch (error) {
       const errorMessage = {
         id: Date.now() + 1,
@@ -66,14 +82,11 @@ const Chatbot = () => {
         isBot: true,
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, errorMessage]);
-    }
-  };
-
-  const handleKeyPress = (event) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      handleSendMessage();
+      
+      setTimeout(() => {
+        setMessages(prev => [...prev, errorMessage]);
+        setIsTyping(false);
+      }, 1000);
     }
   };
 
@@ -182,7 +195,7 @@ const Chatbot = () => {
             </Box>
           </Box>
         ))}
-        {chatbotMutation.isPending && (
+        {isTyping && (
           <Box
             sx={{
               display: 'flex',
@@ -222,39 +235,47 @@ const Chatbot = () => {
           backgroundColor: 'background.paper',
         }}
       >
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <TextField
-            fullWidth
-            multiline
-            maxRows={4}
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Escribe tu mensaje aquí..."
-            variant="outlined"
-            size="small"
-            disabled={chatbotMutation.isPending}
-          />
-          <IconButton
-            color="primary"
-            onClick={handleSendMessage}
-            disabled={!inputMessage.trim() || chatbotMutation.isPending}
-            sx={{
-              alignSelf: 'flex-end',
-              backgroundColor: 'primary.main',
-              color: 'white',
-              '&:hover': {
-                backgroundColor: 'primary.dark',
-              },
-              '&:disabled': {
-                backgroundColor: 'action.disabled',
-                color: 'action.disabled',
-              },
-            }}
-          >
-            <Send />
-          </IconButton>
-        </Box>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Controller
+              name="message"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  fullWidth
+                  multiline
+                  maxRows={4}
+                  placeholder="Escribe tu mensaje aquí..."
+                  variant="outlined"
+                  size="small"
+                  disabled={isSubmitting || isTyping}
+                  error={!!errors.message}
+                  helperText={errors.message?.message}
+                />
+              )}
+            />
+            <IconButton
+              type="submit"
+              color="primary"
+              disabled={isSubmitting || isTyping}
+              sx={{
+                alignSelf: 'flex-end',
+                backgroundColor: 'primary.main',
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: 'primary.dark',
+                },
+                '&:disabled': {
+                  backgroundColor: 'action.disabled',
+                  color: 'action.disabled',
+                },
+              }}
+            >
+              <Send />
+            </IconButton>
+          </Box>
+        </form>
       </Box>
     </Box>
   );

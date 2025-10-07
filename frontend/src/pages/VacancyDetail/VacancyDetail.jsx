@@ -171,9 +171,13 @@ const VacancyDetail = () => {
 
           <Divider sx={{ my: 3 }} />
 
-          <Grid container spacing={4}>
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'column', md: 'row' },
+            gap: 4
+          }}>
             {/* Technical Skills */}
-            <Grid item xs={12} md={6}>
+            <Box sx={{ flex: 1 }}>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
                 Habilidades Técnicas Requeridas
               </Typography>
@@ -187,10 +191,10 @@ const VacancyDetail = () => {
                   />
                 ))}
               </Stack>
-            </Grid>
+            </Box>
 
             {/* Soft Skills */}
-            <Grid item xs={12} md={6}>
+            <Box sx={{ flex: 1 }}>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
                 Habilidades Blandas Requeridas
               </Typography>
@@ -204,14 +208,18 @@ const VacancyDetail = () => {
                   />
                 ))}
               </Stack>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </Paper>
 
         {/* Candidates Section */}
-        <Grid container spacing={4}>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: { xs: 'column', lg: 'row' },
+          gap: 4
+        }}>
           {/* Internal Candidates */}
-          <Grid item xs={12} lg={6}>
+          <Box sx={{ flex: 1 }}>
             <Paper sx={{ p: 4, height: '100%' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                 <TrendingUp sx={{ mr: 1, color: 'primary.main' }} />
@@ -319,10 +327,10 @@ const VacancyDetail = () => {
                 </Stack>
               )}
             </Paper>
-          </Grid>
+          </Box>
 
           {/* External Candidates */}
-          <Grid item xs={12} lg={6}>
+          <Box sx={{ flex: 1 }}>
             <Paper sx={{ p: 4, height: '100%' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                 <People sx={{ mr: 1, color: 'secondary.main' }} />
@@ -430,8 +438,8 @@ const VacancyDetail = () => {
                 </Stack>
               )}
             </Paper>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </Container>
     </Box>
   );

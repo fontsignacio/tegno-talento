@@ -133,13 +133,24 @@ const Home = () => {
         </Container>
       </Box>
 
-      {/* Stats Section */}
-      <Box sx={{ py: 6, backgroundColor: 'background.paper' }}>
-        <Container maxWidth="lg">
-          <Grid container spacing={4}>
-            {stats.map((stat, index) => (
-              <Grid item xs={6} md={3} key={index}>
-                <Box sx={{ textAlign: 'center' }}>
+        {/* Stats Section */}
+        <Box sx={{ py: 6, backgroundColor: 'background.paper' }}>
+          <Container maxWidth="lg">
+            <Box sx={{ 
+              display: 'flex', 
+              flexWrap: 'wrap', 
+              gap: 4,
+              justifyContent: 'center'
+            }}>
+              {stats.map((stat, index) => (
+                <Box 
+                  key={index}
+                  sx={{ 
+                    textAlign: 'center',
+                    minWidth: { xs: 'calc(50% - 16px)', md: 'calc(25% - 24px)' },
+                    flex: { xs: '1 1 calc(50% - 16px)', md: '1 1 calc(25% - 24px)' }
+                  }}
+                >
                   <Typography
                     variant="h3"
                     component="div"
@@ -155,11 +166,10 @@ const Home = () => {
                     {stat.label}
                   </Typography>
                 </Box>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-      </Box>
+              ))}
+            </Box>
+          </Container>
+        </Box>
 
       {/* Features Section */}
       <Box sx={{ py: 8, backgroundColor: 'background.default' }}>
@@ -174,9 +184,20 @@ const Home = () => {
             </Typography>
           </Box>
 
-          <Grid container spacing={4}>
+          <Box sx={{ 
+            display: 'flex', 
+            flexWrap: 'wrap', 
+            gap: 4,
+            justifyContent: 'center'
+          }}>
             {features.map((feature, index) => (
-              <Grid item xs={12} md={4} key={index}>
+              <Box 
+                key={index}
+                sx={{ 
+                  minWidth: { xs: '100%', md: 'calc(33.333% - 32px)' },
+                  flex: { xs: '1 1 100%', md: '1 1 calc(33.333% - 32px)' }
+                }}
+              >
                 <Card
                   sx={{
                     height: '100%',
@@ -213,71 +234,71 @@ const Home = () => {
                     </Button>
                   </CardContent>
                 </Card>
-              </Grid>
+              </Box>
             ))}
-          </Grid>
+          </Box>
         </Container>
       </Box>
 
       {/* About Section */}
       <Box sx={{ py: 8, backgroundColor: 'background.paper' }}>
         <Container maxWidth="lg">
-          <Grid container spacing={6} alignItems="center">
-            <Grid item xs={12} md={6}>
-              <Box>
-                <Typography variant="h4" component="h2" sx={{ fontWeight: 600, mb: 3 }}>
-                  ¿Por qué elegir nuestro sistema?
-                </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ mb: 3, lineHeight: 1.7 }}>
-                  Este sistema de demostración está diseñado específicamente para estudiantes
-                  de nivel secundario e ingresantes a Ingeniería en Sistemas de Información.
-                  Su propósito es mostrar de forma atractiva y profesional cómo podría
-                  funcionar un sistema de capital humano moderno.
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <School sx={{ mr: 1, color: 'primary.main' }} />
-                    <Typography variant="body2" fontWeight={500}>
-                      Enfoque Educativo
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <TrendingUp sx={{ mr: 1, color: 'success.main' }} />
-                    <Typography variant="body2" fontWeight={500}>
-                      Tecnología Moderna
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Group sx={{ mr: 1, color: 'secondary.main' }} />
-                    <Typography variant="body2" fontWeight={500}>
-                      Comunidad Activa
-                    </Typography>
-                  </Box>
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'column', md: 'row' },
+            gap: 6,
+            alignItems: 'center'
+          }}>
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="h4" component="h2" sx={{ fontWeight: 600, mb: 3 }}>
+                ¿Por qué elegir nuestro sistema?
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 3, lineHeight: 1.7 }}>
+                Este sistema de demostración está diseñado específicamente para estudiantes
+                de nivel secundario e ingresantes a Ingeniería en Sistemas de Información.
+                Su propósito es mostrar de forma atractiva y profesional cómo podría
+                funcionar un sistema de capital humano moderno.
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <School sx={{ mr: 1, color: 'primary.main' }} />
+                  <Typography variant="body2" fontWeight={500}>
+                    Enfoque Educativo
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <TrendingUp sx={{ mr: 1, color: 'success.main' }} />
+                  <Typography variant="body2" fontWeight={500}>
+                    Tecnología Moderna
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Group sx={{ mr: 1, color: 'secondary.main' }} />
+                  <Typography variant="body2" fontWeight={500}>
+                    Comunidad Activa
+                  </Typography>
                 </Box>
               </Box>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Box
-                sx={{
-                  height: 300,
-                  backgroundColor: 'primary.main',
-                  borderRadius: 2,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                }}
-              >
-                <Typography variant="h6" sx={{ textAlign: 'center' }}>
-                  Demostración Interactiva
-                  <br />
-                  <Typography variant="body2" sx={{ opacity: 0.8, mt: 1 }}>
-                    Explora todas las funcionalidades
-                  </Typography>
+            </Box>
+            <Box sx={{ 
+              flex: 1,
+              height: 300,
+              backgroundColor: 'primary.main',
+              borderRadius: 2,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+            }}>
+              <Typography variant="h6" sx={{ textAlign: 'center' }}>
+                Demostración Interactiva
+                <br />
+                <Typography variant="body2" sx={{ opacity: 0.8, mt: 1 }}>
+                  Explora todas las funcionalidades
                 </Typography>
-              </Box>
-            </Grid>
-          </Grid>
+              </Typography>
+            </Box>
+          </Box>
         </Container>
       </Box>
 

@@ -139,8 +139,16 @@ const Vacancies = () => {
         </Box>
 
         {/* Stats Cards */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={3}>
+        <Box sx={{ 
+          display: 'flex', 
+          flexWrap: 'wrap', 
+          gap: 3,
+          mb: 4
+        }}>
+          <Box sx={{ 
+            minWidth: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(25% - 18px)' },
+            flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', md: '1 1 calc(25% - 18px)' }
+          }}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -156,8 +164,11 @@ const Vacancies = () => {
                 </Box>
               </CardContent>
             </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          </Box>
+          <Box sx={{ 
+            minWidth: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(25% - 18px)' },
+            flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', md: '1 1 calc(25% - 18px)' }
+          }}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -173,8 +184,11 @@ const Vacancies = () => {
                 </Box>
               </CardContent>
             </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          </Box>
+          <Box sx={{ 
+            minWidth: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(25% - 18px)' },
+            flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', md: '1 1 calc(25% - 18px)' }
+          }}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -190,8 +204,11 @@ const Vacancies = () => {
                 </Box>
               </CardContent>
             </Card>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+          </Box>
+          <Box sx={{ 
+            minWidth: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(25% - 18px)' },
+            flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', md: '1 1 calc(25% - 18px)' }
+          }}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -207,8 +224,8 @@ const Vacancies = () => {
                 </Box>
               </CardContent>
             </Card>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
 
         {/* Active Vacancies */}
         <Paper sx={{ p: 3, mb: 4 }}>
@@ -226,13 +243,23 @@ const Vacancies = () => {
               </Typography>
             </Box>
           ) : (
-            <Grid container spacing={3}>
+            <Box sx={{ 
+              display: 'flex', 
+              flexWrap: 'wrap', 
+              gap: 3
+            }}>
               {activeVacancies.map((vacancy) => (
-                <Grid item xs={12} sm={6} lg={4} key={vacancy.id}>
+                <Box 
+                  key={vacancy.id}
+                  sx={{ 
+                    minWidth: { xs: '100%', sm: 'calc(50% - 12px)', lg: 'calc(33.333% - 16px)' },
+                    flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', lg: '1 1 calc(33.333% - 16px)' }
+                  }}
+                >
                   <VacancyCard vacancy={vacancy} />
-                </Grid>
+                </Box>
               ))}
-            </Grid>
+            </Box>
           )}
         </Paper>
 
@@ -242,13 +269,23 @@ const Vacancies = () => {
             <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }}>
               Vacantes Pendientes
             </Typography>
-            <Grid container spacing={3}>
+            <Box sx={{ 
+              display: 'flex', 
+              flexWrap: 'wrap', 
+              gap: 3
+            }}>
               {pendingVacancies.map((vacancy) => (
-                <Grid item xs={12} sm={6} lg={4} key={vacancy.id}>
+                <Box 
+                  key={vacancy.id}
+                  sx={{ 
+                    minWidth: { xs: '100%', sm: 'calc(50% - 12px)', lg: 'calc(33.333% - 16px)' },
+                    flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', lg: '1 1 calc(33.333% - 16px)' }
+                  }}
+                >
                   <VacancyCard vacancy={vacancy} />
-                </Grid>
+                </Box>
               ))}
-            </Grid>
+            </Box>
           </Paper>
         )}
 
@@ -258,13 +295,23 @@ const Vacancies = () => {
             <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }}>
               Vacantes Cerradas
             </Typography>
-            <Grid container spacing={3}>
+            <Box sx={{ 
+              display: 'flex', 
+              flexWrap: 'wrap', 
+              gap: 3
+            }}>
               {closedVacancies.map((vacancy) => (
-                <Grid item xs={12} sm={6} lg={4} key={vacancy.id}>
+                <Box 
+                  key={vacancy.id}
+                  sx={{ 
+                    minWidth: { xs: '100%', sm: 'calc(50% - 12px)', lg: 'calc(33.333% - 16px)' },
+                    flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', lg: '1 1 calc(33.333% - 16px)' }
+                  }}
+                >
                   <VacancyCard vacancy={vacancy} />
-                </Grid>
+                </Box>
               ))}
-            </Grid>
+            </Box>
           </Paper>
         )}
 

@@ -51,8 +51,15 @@ const Chatbot = () => {
           <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
             ¿Cómo puedo ayudarte?
           </Typography>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 2 }}>
-            <Box>
+          <Box sx={{ 
+            display: 'flex', 
+            flexWrap: 'wrap', 
+            gap: 2
+          }}>
+            <Box sx={{ 
+              minWidth: { xs: '100%', md: 'calc(50% - 8px)' },
+              flex: { xs: '1 1 100%', md: '1 1 calc(50% - 8px)' }
+            }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
                 📋 Perfiles Profesionales
               </Typography>
@@ -60,7 +67,10 @@ const Chatbot = () => {
                 Pregunta sobre los perfiles disponibles, requisitos, beneficios o cómo encontrar el perfil adecuado para ti.
               </Typography>
             </Box>
-            <Box>
+            <Box sx={{ 
+              minWidth: { xs: '100%', md: 'calc(50% - 8px)' },
+              flex: { xs: '1 1 100%', md: '1 1 calc(50% - 8px)' }
+            }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
                 💼 Vacantes Laborales
               </Typography>
@@ -68,7 +78,10 @@ const Chatbot = () => {
                 Consulta sobre vacantes activas, cómo aplicar, requisitos específicos o el proceso de selección.
               </Typography>
             </Box>
-            <Box>
+            <Box sx={{ 
+              minWidth: { xs: '100%', md: 'calc(50% - 8px)' },
+              flex: { xs: '1 1 100%', md: '1 1 calc(50% - 8px)' }
+            }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
                 👥 Candidatos
               </Typography>
@@ -76,7 +89,10 @@ const Chatbot = () => {
                 Información sobre candidatos, perfiles de estudiantes, habilidades o proceso de matching.
               </Typography>
             </Box>
-            <Box>
+            <Box sx={{ 
+              minWidth: { xs: '100%', md: 'calc(50% - 8px)' },
+              flex: { xs: '1 1 100%', md: '1 1 calc(50% - 8px)' }
+            }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
                 🎓 Sistema Educativo
               </Typography>
