@@ -17,7 +17,7 @@
 ```
 DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DBNAME?schema=public"
 //para hacer pruebas:
-//DATABASE_URL=postgresql://postgres.ojhmymnmzfrizvilknwi:bSa8wzHjcLdXWYIF@aws-1-us-east-1.pooler.supabase.com:6543/postgres
+//DATABASE_URL=postgresql://postgres.ojhmymnmzfrizvilknwi:bSa8wzHjcLdXWYIF@aws-1-us-east-1.pooler.supabase.com:5432/postgres
 PORT=3000
 ```
 2) Instalar dependencias:
