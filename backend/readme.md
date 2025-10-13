@@ -16,6 +16,8 @@
 1) Crear `.env` en el root con al menos:
 ```
 DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DBNAME?schema=public"
+//para hacer pruebas:
+//DATABASE_URL=postgresql://postgres.ojhmymnmzfrizvilknwi:bSa8wzHjcLdXWYIF@aws-1-us-east-1.pooler.supabase.com:6543/postgres
 PORT=3000
 ```
 2) Instalar dependencias:
@@ -26,6 +28,8 @@ npm install
 ```
 npm run migrate
 ```
+
+Nota: Asegúrate de que el archivo `.env` esté guardado en codificación UTF-8 (sin BOM). Algunos editores en Windows pueden guardar archivos en UTF-16LE, lo que impide que `dotenv` los parse correctamente; si tus variables aparecen como `undefined`, re-guardar `.env` en UTF-8 suele resolverlo.
 
 #### Ejecutar
 - Desarrollo (hot reload):
