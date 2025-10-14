@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import * as vacanteService from "../services/vacanteService";
 import { CreateVacanteDTO, UpdateVacanteDTO } from "../types/vacante";
 
+
 export const getAllVacantes = async (req: Request, res: Response) => {
   try {
     const vacantes = await vacanteService.getAllVacantes();
@@ -59,11 +60,18 @@ export const getVacantesActivas = async (req: Request, res: Response) => {
 export const createVacante = async (req: Request, res: Response) => {
   try {
     const data: CreateVacanteDTO = req.body;
-    const vacante = await vacanteService.createVacante(data);
-    res.status(201).json(vacante);
-  } catch (error) {
-    console.error("Error creating vacante:", error);
-    res.status(500).json({ error: "Internal server error" });
+
+    // Llamada al servicio que crea la vacante y sus habilidades
+    const result = await vacanteService.createVacante(data);
+
+    // Retornar mensaje y data filtrada
+    return res.status(201).json(result);
+  } catch (error: any) {
+    console.error("Error en createVacante:", error);
+    return res.status(500).json({
+      message: "Error al crear la vacante",
+      error: error.message || "Error interno",
+    });
   }
 };
 
