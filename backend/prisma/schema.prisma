@@ -15,60 +15,60 @@ model area {
 }
 
 model puesto {
-  id_puesto           Int      @id @default(autoincrement())
-  nombre              String   @db.VarChar(50)
-  descripcion         String?
-  peso_experiencia    Decimal  @db.Decimal(5, 2)
-  peso_educacion      Decimal  @db.Decimal(5, 2)
-  experiencia_req     Int
-  nivel_educ_req      Int
-  puntaje_corte       Decimal  @db.Decimal(5, 2)
-  area_id             Int
-  area                area     @relation(fields: [area_id], references: [id_area])
-  vacantes            vacante[]
-  puesto_habilidades  puesto_habilidad[]
-  empleados           empleado[]
+  id_puesto   Int      @id @default(autoincrement())
+  nombre      String   @db.VarChar(50)
+  descripcion String?
+  area_id     Int
+  area        area     @relation(fields: [area_id], references: [id_area])
+  vacantes    vacante[]
+  empleados   empleado[]
 }
 
 model habilidad {
-  id_habilidad        Int      @id @default(autoincrement())
-  nombre              String   @db.VarChar(50)
-  tipo                tipo_habilidad
-  puesto_habilidades  puesto_habilidad[]
+  id_habilidad         Int      @id @default(autoincrement())
+  nombre               String   @db.VarChar(50)
+  tipo                 tipo_habilidad
+  vacante_habilidades  vacante_habilidad[]
   empleado_habilidades empleado_habilidad[]
 }
 
 model empleado {
-  id_empleado         Int      @id @default(autoincrement())
-  nombre              String   @db.VarChar(100)
-  correo              String   @unique @db.VarChar(100)
-  experiencia         Int?
-  nivel_educativo     Int?
-  puesto_id           Int
-  tipo_empleado       tipo_empleado @default(INTERNO)
-  puesto              puesto   @relation(fields: [puesto_id], references: [id_puesto])
+  id_empleado          Int      @id @default(autoincrement())
+  nombre               String   @db.VarChar(100)
+  correo               String   @unique @db.VarChar(100)
+  experiencia          Int?
+  nivel_educativo      Int?
+  puesto_id            Int
+  tipo_empleado        tipo_empleado @default(INTERNO)
+  puesto               puesto   @relation(fields: [puesto_id], references: [id_puesto])
   empleado_habilidades empleado_habilidad[]
   respuestas_formulario empleado_respuesta_formulario[]
 }
 
 model vacante {
-  id_vacante    Int      @id @default(autoincrement())
-  descripcion   String?
-  fecha_creacion DateTime @default(now())
-  fecha_cierre  DateTime?
-  puesto_id     Int
-  puesto        puesto   @relation(fields: [puesto_id], references: [id_puesto])
+  id_vacante       Int      @id @default(autoincrement())
+  descripcion      String?
+  fecha_creacion   DateTime @default(now())
+  fecha_cierre     DateTime?
+  puesto_id        Int
+  puesto           puesto   @relation(fields: [puesto_id], references: [id_puesto])
+  peso_experiencia Decimal  @db.Decimal(5, 2)
+  peso_educacion   Decimal  @db.Decimal(5, 2)
+  experiencia_req  Int
+  nivel_educ_req   Int
+  puntaje_corte    Decimal  @db.Decimal(5, 2)
+  vacante_habilidades vacante_habilidad[]
 }
 
 // Modelos de relación
-model puesto_habilidad {
+model vacante_habilidad {
   id_vacante_habilidad Int      @id @default(autoincrement())
-  puesto_id            Int
+  vacante_id           Int
   habilidad_id         Int
   nivel_requerido      Int
   critica              Boolean  @default(false)
   peso                 Decimal  @db.Decimal(5, 2)
-  puesto               puesto   @relation(fields: [puesto_id], references: [id_puesto])
+  vacante              vacante  @relation(fields: [vacante_id], references: [id_vacante])
   habilidad            habilidad @relation(fields: [habilidad_id], references: [id_habilidad])
 }
 
