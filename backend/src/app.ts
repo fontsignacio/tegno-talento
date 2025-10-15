@@ -1,6 +1,7 @@
 import express, { Application } from "express";
 import dotenv from "dotenv";
 import errorHandler from "./middlewares/errorHandler";
+import cors from "cors";
 
 // Import all route modules
 import areaRoutes from "./routes/areaRoutes";
@@ -22,6 +23,14 @@ app.get("/", (req, res) => {
 });
 
 app.use(express.json());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_ORIGIN || /http:\/\/localhost:5\d{3}$/,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 // Register all routes
 app.use(`${baseUrl}/areas`, areaRoutes);
