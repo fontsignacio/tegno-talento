@@ -1,66 +1,27 @@
 import axios from 'axios';
 
-// Importar mocks desde archivos separados
-import { 
-  mockProfiles, 
-  mockVacancies, 
-  mockCandidates, 
-  mockChatbotResponses 
+// Importar mocks restantes solo donde aún se usen
+import {
+  mockVacancies,
+  mockCandidates,
+  mockChatbotResponses
 } from './mocks/index.js';
 
-// Configuración base de axios
+// Configuración base de axios (usar variable de entorno de Vite si existe)
 const api = axios.create({
-  baseURL: 'https://api.talentos.com', // URL ficticia
-  timeout: 5000,
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1',
+  timeout: 10000,
 });
 
 // Funciones de la API
 export const getProfiles = async (filters = {}) => {
-  // Simular delay de red
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  let filteredProfiles = [...mockProfiles];
-  
-  if (filters.area) {
-    filteredProfiles = filteredProfiles.filter(profile => 
-      profile.area.toLowerCase().includes(filters.area.toLowerCase())
-    );
-  }
-  
-  if (filters.career) {
-    filteredProfiles = filteredProfiles.filter(profile => 
-      profile.career.toLowerCase().includes(filters.career.toLowerCase())
-    );
-  }
-  
-  if (filters.experienceLevel) {
-    filteredProfiles = filteredProfiles.filter(profile => 
-      profile.experienceLevel === filters.experienceLevel
-    );
-  }
-  
-  return { data: filteredProfiles };
+  const response = await api.get('/perfiles', { params: filters });
+  return response.data;
 };
 
 export const getProfileById = async (id) => {
-  await new Promise(resolve => setTimeout(resolve, 300));
-  
-  const profile = mockProfiles.find(p => p.id === parseInt(id));
-  if (!profile) {
-    throw new Error('Perfil no encontrado');
-  }
-  
-  // Obtener candidatos que coinciden con este perfil
-  const matchingCandidates = mockCandidates.filter(candidate => 
-    candidate.profileId === parseInt(id)
-  );
-  
-  return { 
-    data: { 
-      ...profile, 
-      matchingCandidates 
-    } 
-  };
+  const response = await api.get(`/perfiles/${id}`);
+  return response.data;
 };
 
 export const getVacancies = async () => {
@@ -70,32 +31,32 @@ export const getVacancies = async () => {
 
 export const getVacancyById = async (id) => {
   await new Promise(resolve => setTimeout(resolve, 300));
-  
+
   const vacancy = mockVacancies.find(v => v.id === parseInt(id));
   if (!vacancy) {
     throw new Error('Vacante no encontrada');
   }
-  
+
   // Obtener candidatos para esta vacante
-  const candidates = mockCandidates.filter(candidate => 
+  const candidates = mockCandidates.filter(candidate =>
     candidate.vacancyId === parseInt(id)
   );
-  
+
   // Separar candidatos internos y externos
-  const internalCandidates = candidates.filter(candidate => 
+  const internalCandidates = candidates.filter(candidate =>
     vacancy.type === 'interna'
   ).slice(0, 5);
-  
-  const externalCandidates = candidates.filter(candidate => 
+
+  const externalCandidates = candidates.filter(candidate =>
     vacancy.type === 'externa'
   ).slice(0, 5);
-  
-  return { 
-    data: { 
-      ...vacancy, 
+
+  return {
+    data: {
+      ...vacancy,
       internalCandidates,
       externalCandidates
-    } 
+    }
   };
 };
 
@@ -106,37 +67,37 @@ export const getCandidates = async () => {
 
 export const getCandidateById = async (id) => {
   await new Promise(resolve => setTimeout(resolve, 300));
-  
+
   const candidate = mockCandidates.find(c => c.id === parseInt(id));
   if (!candidate) {
     throw new Error('Candidato no encontrado');
   }
-  
+
   return { data: candidate };
 };
 
 export const getChatbotResponse = async (message) => {
   await new Promise(resolve => setTimeout(resolve, 1000));
-  
+
   // Respuesta simple basada en palabras clave
   const lowerMessage = message.toLowerCase();
-  
+
   if (lowerMessage.includes('hola') || lowerMessage.includes('hi')) {
     return { data: { response: mockChatbotResponses[0] } };
   }
-  
+
   if (lowerMessage.includes('perfil') || lowerMessage.includes('perfiles')) {
     return { data: { response: mockChatbotResponses[2] } };
   }
-  
+
   if (lowerMessage.includes('vacante') || lowerMessage.includes('vacantes')) {
     return { data: { response: mockChatbotResponses[3] } };
   }
-  
+
   if (lowerMessage.includes('ayuda') || lowerMessage.includes('help')) {
     return { data: { response: mockChatbotResponses[1] } };
   }
-  
+
   // Respuesta aleatoria
   const randomResponse = mockChatbotResponses[Math.floor(Math.random() * mockChatbotResponses.length)];
   return { data: { response: randomResponse } };
@@ -144,12 +105,12 @@ export const getChatbotResponse = async (message) => {
 
 export const createVacancy = async (vacancyData) => {
   await new Promise(resolve => setTimeout(resolve, 800));
-  
+
   // Simular validación
   if (!vacancyData.title || !vacancyData.description) {
     throw new Error('Título y descripción son obligatorios');
   }
-  
+
   const newVacancy = {
     id: mockVacancies.length + 1,
     ...vacancyData,
@@ -157,9 +118,9 @@ export const createVacancy = async (vacancyData) => {
     candidatesCount: 0,
     createdAt: new Date().toISOString().split('T')[0]
   };
-  
+
   mockVacancies.push(newVacancy);
-  
+
   return { data: newVacancy };
 };
 
