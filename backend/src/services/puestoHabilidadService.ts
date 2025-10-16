@@ -1,5 +1,5 @@
 import prisma from "../config/db";
-import { CreatePuestoHabilidadDTO, UpdatePuestoHabilidadDTO } from "../types/puestoHabilidad";
+import { CreatePuestoHabilidadDTO, UpdatePuestoHabilidadDTO } from "../types/vacanteHabilidad";
 
 export const getAllPuestoHabilidades = async () => {
   return prisma.puesto_habilidad.findMany({

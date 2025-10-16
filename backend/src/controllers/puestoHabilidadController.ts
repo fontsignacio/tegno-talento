@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import * as puestoHabilidadService from "../services/puestoHabilidadService";
-import { CreatePuestoHabilidadDTO, UpdatePuestoHabilidadDTO } from "../types/puestoHabilidad";
+import { CreatePuestoHabilidadDTO, UpdatePuestoHabilidadDTO } from "../types/vacanteHabilidad";
 
 export const getAllPuestoHabilidades = async (req: Request, res: Response) => {
   try {

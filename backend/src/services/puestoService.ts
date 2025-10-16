@@ -4,12 +4,7 @@ import { CreatePuestoDTO, UpdatePuestoDTO } from "../types/puesto";
 export const getAllPuestos = async () => {
   return prisma.puesto.findMany({
     include: {
-      area: true,
-      puesto_habilidades: {
-        include: {
-          habilidad: true
-        }
-      }
+      area: false
     }
   });
 };
