@@ -1,6 +1,6 @@
 import { Router } from "express";
 import * as vacanteController from "../controllers/vacanteController";
-
+import { validateCreateVacante } from "../middlewares/vacanteMiddlewares";
 const router = Router();
 
 // GET /api/v1/vacantes
@@ -16,7 +16,7 @@ router.get("/puesto/:puestoId", vacanteController.getVacantesByPuesto);
 router.get("/:id", vacanteController.getVacanteById);
 
 // POST /api/v1/vacantes
-router.post("/", vacanteController.createVacante);
+router.post("/", validateCreateVacante, vacanteController.createVacante);
 
 // PUT /api/v1/vacantes/:id
 router.put("/:id", vacanteController.updateVacante);
