@@ -1,6 +1,9 @@
 import prisma from "../config/db";
 import { CreateVacanteDTO, UpdateVacanteDTO } from "../types/vacante";
 
+
+
+
 export const getAllVacantes = async (filters: { status?: string; tipo_empleado?: string } = {}) => {
   const where: any = {};
 
@@ -286,7 +289,9 @@ export const getCandidatosByVacante = async (vacanteId: number) => {
   // Primero obtener la vacante para conseguir el puesto_id
   const vacante = await prisma.vacante.findUnique({
     where: { id_vacante: vacanteId },
-    select: { puesto_id: true }
+    include: {
+      vacante_habilidades: true,
+    }
   });
 
   if (!vacante) {
@@ -297,12 +302,7 @@ export const getCandidatosByVacante = async (vacanteId: number) => {
   const empleados = await prisma.empleado.findMany({
     where: { puesto_id: vacante.puesto_id },
     include: {
-      puesto: {
-        include: {
-          area: true
-        }
-      },
-      empleado_habilidades: {
+      empleado_habilidades: { 
         include: {
           habilidad: true
         }
@@ -310,20 +310,75 @@ export const getCandidatosByVacante = async (vacanteId: number) => {
     }
   });
 
-  // Separar en internos y externos, y mezclar aleatoriamente
-  const internos = empleados
-    .filter(emp => emp.tipo_empleado === 'INTERNO')
-    .sort(() => Math.random() - 0.5);
-  
-  const externos = empleados
-    .filter(emp => emp.tipo_empleado === 'EXTERNO')
-    .sort(() => Math.random() - 0.5);
-    
+  const empleadosConPuntaje = empleados.map((emp: any) => ({
+    ...emp,
+    puntaje: calcularPuntaje(emp, vacante)
+  }));
+
+  const internos = empleadosConPuntaje
+    .filter((emp: any) => emp.tipo_empleado === 'INTERNO')
+    .sort((a: any, b: any) => b.puntaje - a.puntaje);
+
+  const externos = empleadosConPuntaje
+    .filter((emp: any) => emp.tipo_empleado === 'EXTERNO')
+    .sort((a: any, b: any) => b.puntaje - a.puntaje);
+
   const top5Internos = internos.slice(0, 5);
+
+
 
   return {
     internos,
     externos,
     top5Internos,
   };
+};
+
+
+const calcularPuntaje = (
+  empleado: any,
+  vacante: any
+): number => {
+  // Helper para convertir Prisma.Decimal | string | number a number
+  const toNumber = (value: any): number => {
+    if (value == null) return 0;
+    if (typeof value === 'number') return value;
+    const n = Number(value);
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  // Bloque experiencia/educaciÃ³n
+  const pesoExperiencia = toNumber(vacante.peso_experiencia);
+  const pesoEducacion = toNumber(vacante.peso_educacion);
+  const sumPesoExpEdu = pesoExperiencia + pesoEducacion;
+  const W_E = sumPesoExpEdu > 0 ? pesoExperiencia / sumPesoExpEdu : 0.5; // reparto interno
+  const W_ED = sumPesoExpEdu > 0 ? pesoEducacion / sumPesoExpEdu : 0.5;   // reparto interno
+  const P_EXP_EDU =
+    (W_E * Math.min((toNumber(empleado.experiencia) ?? 0) / (toNumber(vacante.experiencia_req) || 1), 1)) +
+    (W_ED * Math.min((toNumber(empleado.nivel_educativo) ?? 0) / (toNumber(vacante.nivel_educ_req) || 1), 1));
+
+  // Bloque habilidades
+  let P_HABILIDADES = 0;
+  const habilidadesVacante = vacante.vacante_habilidades ?? [];
+  const totalPesoHabilidadesRaw = habilidadesVacante.reduce((sum: number, h: any) => sum + toNumber(h.peso), 0);
+  const totalPesoHabilidades = totalPesoHabilidadesRaw > 0 ? totalPesoHabilidadesRaw : 1;
+
+  habilidadesVacante.forEach((hVac: any) => {
+    const hEmpleado = empleado.empleado_habilidades.find((eh: any) => eh.habilidad_id === hVac.habilidad_id);
+    const nivelEmpleado = toNumber(hEmpleado?.nivel_habilidad) ?? 0;
+    const nivelRequerido = toNumber(hVac.nivel_requerido) || 1;
+
+    const p = Math.min(nivelEmpleado / nivelRequerido, 1);
+    P_HABILIDADES += (toNumber(hVac.peso) / totalPesoHabilidades) * p;
+  });
+
+  // Pesos de bloque derivados del modelo: comparar el peso total Exp/Edu vs el total de habilidades
+  const pesoBloqueExpEdu = sumPesoExpEdu;
+  const pesoBloqueHabilidades = totalPesoHabilidadesRaw;
+  const totalBloques = pesoBloqueExpEdu + pesoBloqueHabilidades || 1;
+  const W_BLOQUE_EXP_EDU = pesoBloqueExpEdu / totalBloques;
+  const W_BLOQUE_HABILIDADES = pesoBloqueHabilidades / totalBloques;
+
+  // Puntaje final normalizado entre 0 y 1
+  return W_BLOQUE_EXP_EDU * P_EXP_EDU + W_BLOQUE_HABILIDADES * P_HABILIDADES;
 };
