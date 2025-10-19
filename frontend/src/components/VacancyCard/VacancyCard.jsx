@@ -22,11 +22,11 @@ const VacancyCard = ({ vacancy }) => {
   const navigate = useNavigate();
 
   const handleViewDetail = () => {
-    navigate(`/vacantes/${vacancy.id}`);
+    navigate(`/vacantes/${vacancy.id_vacante}`);
   };
 
   const handleViewCandidates = () => {
-    navigate(`/vacantes/${vacancy.id}`);
+    navigate(`/vacantes/${vacancy.id_vacante}`);
   };
 
   const getStatusColor = (status) => {
@@ -81,7 +81,7 @@ const VacancyCard = ({ vacancy }) => {
           <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>
             <Work sx={{ mr: 1, color: 'primary.main' }} />
             <Typography variant="h6" component="h2" sx={{ fontWeight: 600, flex: 1 }}>
-              {vacancy.title}
+              {vacancy.puesto?.nombre || 'Sin título'}
             </Typography>
           </Box>
           <Chip
@@ -97,26 +97,28 @@ const VacancyCard = ({ vacancy }) => {
           color="text.secondary"
           sx={{ mb: 2, minHeight: '2.5em' }}
         >
-          {vacancy.description}
+          {vacancy.descripcion || vacancy.puesto?.descripcion || 'Sin descripción'}
         </Typography>
 
         <Box sx={{ mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
             <People sx={{ mr: 1, fontSize: 16, color: 'text.secondary' }} />
             <Typography variant="body2" color="text.secondary">
-              {vacancy.candidatesCount} candidatos
+              {vacancy.candidatesCount || 0} candidatos
             </Typography>
           </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-            <Schedule sx={{ mr: 1, fontSize: 16, color: 'text.secondary' }} />
-            <Typography variant="body2" color="text.secondary">
-              Cierre: {formatDate(vacancy.closingDate)}
-            </Typography>
-          </Box>
+          {vacancy.fecha_cierre && (
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              <Schedule sx={{ mr: 1, fontSize: 16, color: 'text.secondary' }} />
+              <Typography variant="body2" color="text.secondary">
+                Cierre: {formatDate(vacancy.fecha_cierre)}
+              </Typography>
+            </Box>
+          )}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Group sx={{ mr: 1, fontSize: 16, color: 'text.secondary' }} />
             <Typography variant="body2" color="text.secondary">
-              Tipo: {vacancy.type === 'interna' ? 'Interna' : 'Externa'}
+              Área: {vacancy.puesto?.area?.nombre || 'Sin área'}
             </Typography>
           </Box>
         </Box>

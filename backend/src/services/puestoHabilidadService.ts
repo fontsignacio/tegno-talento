@@ -1,5 +1,5 @@
 import prisma from "../config/db";
-import { CreatePuestoHabilidadDTO, UpdatePuestoHabilidadDTO } from "../types/vacanteHabilidad";
+import { CreatePuestoHabilidadDTO, UpdatePuestoHabilidadDTO } from "../types/puestoHabilidad";
 
 export const getAllPuestoHabilidades = async () => {
   return prisma.puesto_habilidad.findMany({
@@ -12,7 +12,7 @@ export const getAllPuestoHabilidades = async () => {
 
 export const getPuestoHabilidadById = async (id: number) => {
   return prisma.puesto_habilidad.findUnique({
-    where: { id_vacante_habilidad: id },
+    where: { id_puesto_habilidad: id },
     include: {
       puesto: true,
       habilidad: true
@@ -42,7 +42,7 @@ export const createPuestoHabilidad = async (data: CreatePuestoHabilidadDTO) => {
 
 export const updatePuestoHabilidad = async (id: number, data: UpdatePuestoHabilidadDTO) => {
   return prisma.puesto_habilidad.update({
-    where: { id_vacante_habilidad: id },
+    where: { id_puesto_habilidad: id },
     data,
     include: {
       puesto: true,
@@ -53,6 +53,6 @@ export const updatePuestoHabilidad = async (id: number, data: UpdatePuestoHabili
 
 export const deletePuestoHabilidad = async (id: number) => {
   return prisma.puesto_habilidad.delete({
-    where: { id_vacante_habilidad: id }
+    where: { id_puesto_habilidad: id }
   });
 };

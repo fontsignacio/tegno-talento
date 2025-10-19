@@ -67,12 +67,6 @@ const ProfileCard = ({ profile }) => {
         </Typography>
 
         <Box sx={{ mb: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-            <School sx={{ mr: 1, fontSize: 16, color: 'text.secondary' }} />
-            <Typography variant="body2" color="text.secondary">
-              {profile.career}
-            </Typography>
-          </Box>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Work sx={{ mr: 1, fontSize: 16, color: 'text.secondary' }} />
             <Typography variant="body2" color="text.secondary">
@@ -89,32 +83,62 @@ const ProfileCard = ({ profile }) => {
             label={profile.experienceLevel}
             color={getExperienceColor(profile.experienceLevel)}
             size="small"
+            sx={{ mb: 2 }}
           />
         </Box>
-
-        <Box>
-          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-            Requisitos principales:
-          </Typography>
-          <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
-            {profile.requirements.slice(0, 3).map((requirement, index) => (
-              <Chip
-                key={index}
-                label={requirement}
-                size="small"
-                variant="outlined"
-                sx={{ fontSize: '0.75rem' }}
-              />
-            ))}
-            {profile.requirements.length > 3 && (
-              <Chip
-                label={`+${profile.requirements.length - 3} más`}
-                size="small"
-                variant="outlined"
-                sx={{ fontSize: '0.75rem' }}
-              />
-            )}
-          </Stack>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          {profile.requirements.technical && (
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                Habilidades técnicas:
+              </Typography>
+              <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
+                {profile.requirements.technical?.slice(0, 3).map((skill, index) => (
+                  <Chip
+                    key={index}
+                    label={skill}
+                    size="small"
+                    variant="outlined"
+                    sx={{ fontSize: '0.75rem' }}
+                  />
+                ))}
+                {profile.requirements.technical?.length > 3 && (
+                  <Chip
+                    label={`+${profile.requirements.technical.length - 3} más`}
+                    size="small"
+                    variant="outlined"
+                    sx={{ fontSize: '0.75rem' }}
+                  />
+                )}
+              </Stack>
+            </Box>
+          )}
+          {profile.requirements.soft && (
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                Habilidades blandas:
+              </Typography>
+              <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
+                {profile.requirements.soft?.slice(0, 3).map((skill, index) => (
+                  <Chip
+                    key={index}
+                    label={skill}
+                    size="small"
+                    variant="outlined"
+                    sx={{ fontSize: '0.75rem' }}
+                  />
+                ))}
+                {profile.requirements.soft?.length > 3 && (
+                  <Chip
+                    label={`+${profile.requirements.soft.length - 3} más`}
+                    size="small"
+                    variant="outlined"
+                    sx={{ fontSize: '0.75rem' }}
+                  />
+                )}
+              </Stack>
+            </Box>
+          )}
         </Box>
       </CardContent>
 

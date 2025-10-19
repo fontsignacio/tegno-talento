@@ -15,6 +15,9 @@ router.get("/puesto/:puestoId", vacanteController.getVacantesByPuesto);
 // GET /api/v1/vacantes/:id
 router.get("/:id", vacanteController.getVacanteById);
 
+// GET /api/v1/vacantes/:id/candidatos
+router.get("/:id/candidatos", vacanteController.getCandidatosByVacante);
+
 // POST /api/v1/vacantes
 router.post("/", validateCreateVacante, vacanteController.createVacante);
 

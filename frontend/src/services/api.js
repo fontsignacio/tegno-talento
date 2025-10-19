@@ -1,11 +1,7 @@
 import axios from 'axios';
 
-// Importar mocks restantes solo donde aún se usen
-import {
-  mockVacancies,
-  mockCandidates,
-  mockChatbotResponses
-} from './mocks/index.js';
+// Importar solo chatbot mock
+import { mockChatbotResponses } from './mocks/chatbot.js';
 
 // Configuración base de axios (usar variable de entorno de Vite si existe)
 const api = axios.create({
@@ -13,7 +9,7 @@ const api = axios.create({
   timeout: 10000,
 });
 
-// Funciones de la API
+// ===== SERVICIOS DE PERFILES =====
 export const getProfiles = async (filters = {}) => {
   const response = await api.get('/perfiles', { params: filters });
   return response.data;
@@ -24,58 +20,60 @@ export const getProfileById = async (id) => {
   return response.data;
 };
 
-export const getVacancies = async () => {
-  await new Promise(resolve => setTimeout(resolve, 400));
-  return { data: mockVacancies };
+// ===== SERVICIOS DE VACANTES =====
+export const getVacancies = async (filters = {}) => {
+  const response = await api.get('/vacantes', { params: filters });
+  return response.data;
 };
 
 export const getVacancyById = async (id) => {
-  await new Promise(resolve => setTimeout(resolve, 300));
-
-  const vacancy = mockVacancies.find(v => v.id === parseInt(id));
-  if (!vacancy) {
-    throw new Error('Vacante no encontrada');
-  }
-
-  // Obtener candidatos para esta vacante
-  const candidates = mockCandidates.filter(candidate =>
-    candidate.vacancyId === parseInt(id)
-  );
-
-  // Separar candidatos internos y externos
-  const internalCandidates = candidates.filter(candidate =>
-    vacancy.type === 'interna'
-  ).slice(0, 5);
-
-  const externalCandidates = candidates.filter(candidate =>
-    vacancy.type === 'externa'
-  ).slice(0, 5);
-
-  return {
-    data: {
-      ...vacancy,
-      internalCandidates,
-      externalCandidates
-    }
-  };
+  const response = await api.get(`/vacantes/${id}`);
+  return response.data;
 };
 
-export const getCandidates = async () => {
-  await new Promise(resolve => setTimeout(resolve, 400));
-  return { data: mockCandidates };
+export const getCandidatesByVacancy = async (id) => {
+  const response = await api.get(`/vacantes/${id}/candidatos`);
+  return response.data;
+};
+
+export const createVacancy = async (data) => {
+  const response = await api.post('/vacantes', data);
+  return response.data;
+};
+
+// ===== SERVICIOS DE CANDIDATOS (EMPLEADOS) =====
+export const getCandidates = async (filters = {}) => {
+  const response = await api.get('/empleados', { params: filters });
+  return response.data;
 };
 
 export const getCandidateById = async (id) => {
-  await new Promise(resolve => setTimeout(resolve, 300));
-
-  const candidate = mockCandidates.find(c => c.id === parseInt(id));
-  if (!candidate) {
-    throw new Error('Candidato no encontrado');
-  }
-
-  return { data: candidate };
+  const response = await api.get(`/empleados/${id}`);
+  return response.data;
 };
 
+// ===== SERVICIOS AUXILIARES =====
+export const getAreas = async () => {
+  const response = await api.get('/areas');
+  return response.data;
+};
+
+export const getPuestos = async () => {
+  const response = await api.get('/puestos');
+  return response.data;
+};
+
+export const getHabilidades = async () => {
+  const response = await api.get('/habilidades');
+  return response.data;
+};
+
+export const getHabilidadesByTipo = async (tipo) => {
+  const response = await api.get(`/habilidades/tipo/${tipo}`);
+  return response.data;
+};
+
+// ===== SERVICIO DE CHATBOT (MOCK) =====
 export const getChatbotResponse = async (message) => {
   await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -101,27 +99,6 @@ export const getChatbotResponse = async (message) => {
   // Respuesta aleatoria
   const randomResponse = mockChatbotResponses[Math.floor(Math.random() * mockChatbotResponses.length)];
   return { data: { response: randomResponse } };
-};
-
-export const createVacancy = async (vacancyData) => {
-  await new Promise(resolve => setTimeout(resolve, 800));
-
-  // Simular validación
-  if (!vacancyData.title || !vacancyData.description) {
-    throw new Error('Título y descripción son obligatorios');
-  }
-
-  const newVacancy = {
-    id: mockVacancies.length + 1,
-    ...vacancyData,
-    status: 'pendiente',
-    candidatesCount: 0,
-    createdAt: new Date().toISOString().split('T')[0]
-  };
-
-  mockVacancies.push(newVacancy);
-
-  return { data: newVacancy };
 };
 
 export default api;

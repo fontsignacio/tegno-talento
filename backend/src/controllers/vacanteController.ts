@@ -5,7 +5,13 @@ import { CreateVacanteDTO, UpdateVacanteDTO } from "../types/vacante";
 
 export const getAllVacantes = async (req: Request, res: Response) => {
   try {
-    const vacantes = await vacanteService.getAllVacantes();
+    const { status, tipo_empleado } = req.query;
+    const filters: { status?: string; tipo_empleado?: string } = {};
+    
+    if (status) filters.status = status as string;
+    if (tipo_empleado) filters.tipo_empleado = tipo_empleado as string;
+    
+    const vacantes = await vacanteService.getAllVacantes(filters);
     res.json(vacantes);
   } catch (error) {
     console.error("Error getting vacantes:", error);
@@ -106,6 +112,24 @@ export const deleteVacante = async (req: Request, res: Response) => {
     res.status(204).send();
   } catch (error) {
     console.error("Error deleting vacante:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const getCandidatosByVacante = async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ error: "Invalid vacante ID" });
+    }
+
+    const candidatos = await vacanteService.getCandidatosByVacante(id);
+    res.json(candidatos);
+  } catch (error: any) {
+    console.error("Error getting candidatos by vacante:", error);
+    if (error.message === 'Vacante no encontrada') {
+      return res.status(404).json({ error: error.message });
+    }
     res.status(500).json({ error: "Internal server error" });
   }
 };

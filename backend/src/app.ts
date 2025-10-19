@@ -12,6 +12,7 @@ import vacanteRoutes from "./routes/vacanteRoutes";
 import puestoHabilidadRoutes from "./routes/puestoHabilidadRoutes";
 import empleadoHabilidadRoutes from "./routes/empleadoHabilidadRoutes";
 import empleadoRespuestaFormularioRoutes from "./routes/empleadoRespuestaFormularioRoutes";
+import profileRoutes from "./routes/profileRoutes";
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.use(`${baseUrl}/vacantes`, vacanteRoutes);
 app.use(`${baseUrl}/puesto-habilidades`, puestoHabilidadRoutes);
 app.use(`${baseUrl}/empleado-habilidades`, empleadoHabilidadRoutes);
 app.use(`${baseUrl}/empleado-respuestas-formulario`, empleadoRespuestaFormularioRoutes);
+app.use(`${baseUrl}/perfiles`, profileRoutes);
 
 app.use(errorHandler);
 

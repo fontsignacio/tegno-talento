@@ -1,9 +1,10 @@
+import { tipo_empleado } from "@prisma/client";
 import prisma from "../config/db";
 
 export type ProfileFilters = {
   area?: string;
   experienceLevel?: string;
-  q?: string;
+  search?: string;
 };
 
 function mapExperienceLevel(experienciaReq?: number | null): "Junior" | "Semi-Senior" | "Senior" {
@@ -30,7 +31,16 @@ export const getProfiles = async (filters: ProfileFilters = {}) => {
   const mapped = puestos.map(p => {
     const latestVacante = p.vacantes[0];
     const experienciaReq = latestVacante?.experiencia_req ?? null;
-    const requirements = latestVacante?.vacante_habilidades?.map(vh => vh.habilidad.nombre) ?? [];
+    
+    // Separar habilidades técnicas y blandas
+    const technicalSkills = latestVacante?.vacante_habilidades
+      ?.filter(vh => vh.habilidad.tipo === 'tecnica')
+      ?.map(vh => vh.habilidad.nombre) ?? [];
+    
+    const softSkills = latestVacante?.vacante_habilidades
+      ?.filter(vh => vh.habilidad.tipo === 'blanda')
+      ?.map(vh => vh.habilidad.nombre) ?? [];
+    
     return {
       id: p.id_puesto,
       name: p.nombre,
@@ -38,7 +48,10 @@ export const getProfiles = async (filters: ProfileFilters = {}) => {
       career: p.area?.nombre ?? "",
       area: p.area?.nombre ?? "",
       experienceLevel: mapExperienceLevel(experienciaReq),
-      requirements,
+      requirements: {
+        technical: technicalSkills,
+        soft: softSkills
+      },
       benefits: [],
       createdAt: latestVacante?.fecha_creacion ?? new Date(),
     };
@@ -52,8 +65,8 @@ export const getProfiles = async (filters: ProfileFilters = {}) => {
   if (filters.experienceLevel) {
     filtered = filtered.filter(p => p.experienceLevel === filters.experienceLevel);
   }
-  if (filters.q) {
-    const term = filters.q.toLowerCase();
+  if (filters.search) {
+    const term = filters.search.toLowerCase();
     filtered = filtered.filter(p =>
       p.name.toLowerCase().includes(term) ||
       p.description.toLowerCase().includes(term)
@@ -78,10 +91,25 @@ export const getProfileById = async (id: number) => {
   });
 
   if (!puesto) return null;
+  
+  const matchingCandidates = await prisma.empleado.findMany({
+    where: {
+      puesto_id: puesto.id_puesto,
+      tipo_empleado: tipo_empleado.EXTERNO
+    },
+  });
 
   const latestVacante = puesto.vacantes[0];
   const experienciaReq = latestVacante?.experiencia_req ?? null;
-  const requirements = latestVacante?.vacante_habilidades?.map(vh => vh.habilidad.nombre) ?? [];
+  
+  // Separar habilidades técnicas y blandas
+  const technicalSkills = latestVacante?.vacante_habilidades
+    ?.filter(vh => vh.habilidad.tipo === 'tecnica')
+    ?.map(vh => vh.habilidad.nombre) ?? [];
+  
+  const softSkills = latestVacante?.vacante_habilidades
+    ?.filter(vh => vh.habilidad.tipo === 'blanda')
+    ?.map(vh => vh.habilidad.nombre) ?? [];
 
   const profile = {
     id: puesto.id_puesto,
@@ -90,10 +118,13 @@ export const getProfileById = async (id: number) => {
     career: puesto.area?.nombre ?? "",
     area: puesto.area?.nombre ?? "",
     experienceLevel: mapExperienceLevel(experienciaReq),
-    requirements,
+    requirements: {
+      technical: technicalSkills,
+      soft: softSkills
+    },
     benefits: [],
     createdAt: latestVacante?.fecha_creacion ?? new Date(),
-    matchingCandidates: [] as any[]
+    matchingCandidates,
   };
 
   return profile;

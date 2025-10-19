@@ -34,7 +34,7 @@ const Profiles = () => {
         {/* Header */}
         <Box sx={{ mb: 4 }}>
           <Typography variant="h4" component="h1" sx={{ fontWeight: 600, mb: 2 }}>
-            Perfiles Profesionales
+            Puestos del equipo TecnoTalento
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
             Explora los perfiles profesionales disponibles y encuentra el que mejor se adapte

@@ -14,19 +14,14 @@ import {
   Card,
   CardContent,
   Avatar,
-  LinearProgress,
 } from '@mui/material';
 import {
   ArrowBack,
   Person,
-  Email,
-  Phone,
-  LocationOn,
   Work,
   School,
-  Star,
-  CheckCircle,
   TrendingUp,
+  Email,
 } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCandidateQuery } from '../../hooks/useCandidatesQuery';
@@ -34,7 +29,7 @@ import { useCandidateQuery } from '../../hooks/useCandidatesQuery';
 const CandidateDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { data, isLoading, error } = useCandidateQuery(id);
+  const { data: candidateData, isLoading, error } = useCandidateQuery(id);
 
   if (isLoading) {
     return (
@@ -54,7 +49,7 @@ const CandidateDetail = () => {
     );
   }
 
-  if (!data?.data) {
+  if (!candidateData) {
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Alert severity="warning">
@@ -64,7 +59,7 @@ const CandidateDetail = () => {
     );
   }
 
-  const candidate = data.data;
+  const candidate = candidateData;
 
   const getSuitabilityColor = (percentage) => {
     if (percentage >= 80) return 'success';
@@ -113,14 +108,14 @@ const CandidateDetail = () => {
                 fontSize: '2.5rem',
               }}
             >
-              {getInitials(candidate.name)}
+              {getInitials(candidate.nombre)}
             </Avatar>
             <Box sx={{ flex: 1 }}>
               <Typography variant="h4" component="h1" sx={{ fontWeight: 600, mb: 1 }}>
-                {candidate.name}
+                {candidate.nombre}
               </Typography>
               <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
-                {candidate.email}
+                {candidate.correo}
               </Typography>
               
               <Box sx={{ 
@@ -134,31 +129,20 @@ const CandidateDetail = () => {
                   flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(25% - 12px)' }
                 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Phone sx={{ mr: 1, color: 'text.secondary' }} />
-                    <Typography variant="body2" color="text.secondary">
-                      {candidate.phone}
-                    </Typography>
-                  </Box>
-                </Box>
-                <Box sx={{ 
-                  minWidth: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(25% - 12px)' },
-                  flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(25% - 12px)' }
-                }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <LocationOn sx={{ mr: 1, color: 'text.secondary' }} />
-                    <Typography variant="body2" color="text.secondary">
-                      {candidate.location}
-                    </Typography>
-                  </Box>
-                </Box>
-                <Box sx={{ 
-                  minWidth: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(25% - 12px)' },
-                  flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(25% - 12px)' }
-                }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Work sx={{ mr: 1, color: 'text.secondary' }} />
                     <Typography variant="body2" color="text.secondary">
-                      {candidate.availability}
+                      {candidate.puesto?.nombre || 'Sin puesto'}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box sx={{ 
+                  minWidth: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(25% - 12px)' },
+                  flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(25% - 12px)' }
+                }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Person sx={{ mr: 1, color: 'text.secondary' }} />
+                    <Typography variant="body2" color="text.secondary">
+                      {candidate.tipo_empleado === 'INTERNO' ? 'Interno' : 'Externo'}
                     </Typography>
                   </Box>
                 </Box>
@@ -169,54 +153,44 @@ const CandidateDetail = () => {
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <TrendingUp sx={{ mr: 1, color: 'text.secondary' }} />
                     <Typography variant="body2" color="text.secondary">
-                      Aplicó el {formatDate(candidate.appliedAt)}
+                      {candidate.experiencia || 0} años de experiencia
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box sx={{ 
+                  minWidth: { xs: '100%', sm: 'calc(50% - 8px)', md: 'calc(25% - 12px)' },
+                  flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 8px)', md: '1 1 calc(25% - 12px)' }
+                }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <School sx={{ mr: 1, color: 'text.secondary' }} />
+                    <Typography variant="body2" color="text.secondary">
+                      Nivel educativo: {candidate.nivel_educativo || 'No especificado'}
                     </Typography>
                   </Box>
                 </Box>
               </Box>
 
-              {/* Suitability Score */}
-              <Card variant="outlined" sx={{ p: 2, backgroundColor: 'background.paper' }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    Idoneidad para la Vacante
-                  </Typography>
-                  <Typography variant="h4" color="primary.main" sx={{ fontWeight: 700 }}>
-                    {candidate.suitabilityPercentage}%
-                  </Typography>
-                </Box>
-                <LinearProgress
-                  variant="determinate"
-                  value={candidate.suitabilityPercentage}
-                  color={getSuitabilityColor(candidate.suitabilityPercentage)}
-                  sx={{ height: 12, borderRadius: 6 }}
-                />
-              </Card>
             </Box>
           </Box>
         </Paper>
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          {/* Technical Skills */}
-          <Box sx={{ 
-            display: 'flex', 
-            flexDirection: { xs: 'column', md: 'row' },
-            gap: 4
-          }}>
-            <Box sx={{ flex: 1 }}>
-              <Paper sx={{ p: 4, height: '100%' }}>
+          {/* Skills */}
+          {candidate.empleado_habilidades && candidate.empleado_habilidades.length > 0 && (
+            <Box>
+              <Paper sx={{ p: 4 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                   <Work sx={{ mr: 1, color: 'primary.main' }} />
                   <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                    Habilidades Técnicas
+                    Habilidades
                   </Typography>
                 </Box>
                 <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                  {candidate.technicalSkills.map((skill, index) => (
+                  {candidate.empleado_habilidades.map((eh, index) => (
                     <Chip
                       key={index}
-                      label={skill}
-                      color="primary"
+                      label={eh.habilidad.nombre}
+                      color={eh.habilidad.tipo === 'tecnica' ? 'primary' : 'secondary'}
                       variant="outlined"
                       sx={{ mb: 1 }}
                     />
@@ -224,102 +198,8 @@ const CandidateDetail = () => {
                 </Stack>
               </Paper>
             </Box>
+          )}
 
-            {/* Soft Skills */}
-            <Box sx={{ flex: 1 }}>
-              <Paper sx={{ p: 4, height: '100%' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                  <Person sx={{ mr: 1, color: 'secondary.main' }} />
-                  <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                    Habilidades Blandas
-                  </Typography>
-                </Box>
-                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                  {candidate.softSkills.map((skill, index) => (
-                    <Chip
-                      key={index}
-                      label={skill}
-                      color="secondary"
-                      variant="outlined"
-                      sx={{ mb: 1 }}
-                    />
-                  ))}
-                </Stack>
-              </Paper>
-            </Box>
-          </Box>
-
-          {/* Professional Interests */}
-          <Box>
-            <Paper sx={{ p: 4 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                <Star sx={{ mr: 1, color: 'warning.main' }} />
-                <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                  Intereses Profesionales
-                </Typography>
-              </Box>
-              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                {candidate.interests.map((interest, index) => (
-                  <Chip
-                    key={index}
-                    label={interest}
-                    color="warning"
-                    variant="outlined"
-                    sx={{ mb: 1 }}
-                  />
-                ))}
-              </Stack>
-            </Paper>
-          </Box>
-
-          {/* Work Experience */}
-          <Box>
-            <Paper sx={{ p: 4 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                <School sx={{ mr: 1, color: 'info.main' }} />
-                <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                  Experiencia Laboral
-                </Typography>
-              </Box>
-              {candidate.experience && candidate.experience.length > 0 ? (
-                <Stack spacing={3}>
-                  {candidate.experience.map((exp, index) => (
-                    <Card key={index} variant="outlined">
-                      <CardContent>
-                        <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 2 }}>
-                          <CheckCircle sx={{ mr: 1, color: 'success.main', mt: 0.5 }} />
-                          <Box sx={{ flex: 1 }}>
-                            <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
-                              {exp.position}
-                            </Typography>
-                            <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 1 }}>
-                              {exp.company}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                              {exp.period}
-                            </Typography>
-                            <Typography variant="body1">
-                              {exp.description}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </Stack>
-              ) : (
-                <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <Work sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
-                  <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
-                    Sin experiencia laboral registrada
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Este candidato no tiene experiencia laboral registrada en el sistema.
-                  </Typography>
-                </Box>
-              )}
-            </Paper>
-          </Box>
         </Box>
 
         {/* Action Buttons */}

@@ -3,8 +3,8 @@ import * as profileService from "../services/profileService";
 
 export const listProfiles = async (req: Request, res: Response) => {
   try {
-    const { area, experienceLevel, q } = req.query as any;
-    const profiles = await profileService.getProfiles({ area, experienceLevel, q });
+    const { area, experienceLevel, search } = req.query as any;
+    const profiles = await profileService.getProfiles({ area, experienceLevel, search });
     res.json({ data: profiles });
   } catch (error) {
     console.error("Error listing profiles:", error);

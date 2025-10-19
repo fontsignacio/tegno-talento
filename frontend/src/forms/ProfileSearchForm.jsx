@@ -10,6 +10,7 @@ import {
   Chip,
   Stack,
   Typography,
+  CircularProgress,
 } from '@mui/material';
 import {
   Search,
@@ -18,6 +19,7 @@ import {
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { profileSearchSchema, defaultValues } from '../schemas/profileSearchSchema';
+import { useAreasQuery } from '../hooks/useProfilesQuery';
 
 const ProfileSearchForm = ({ onSearch, onClear, isLoading = false }) => {
   const {
@@ -31,12 +33,11 @@ const ProfileSearchForm = ({ onSearch, onClear, isLoading = false }) => {
     defaultValues,
   });
 
+  const { data: areasData, isLoading: areasLoading, error: areasError } = useAreasQuery();
   const watchedValues = watch();
   const hasActiveFilters = Object.values(watchedValues).some(value => value !== '');
 
-  const areas = ['Tecnología', 'Análisis', 'Diseño', 'Gestión'];
-  const careers = ['Ingeniería en Sistemas', 'Diseño Gráfico', 'Administración'];
-  const experienceLevels = ['Junior', 'Semi-Senior', 'Senior'];
+  const areas = areasData || [];
 
   const onSubmit = (data) => {
     onSearch(data);
@@ -99,59 +100,13 @@ const ProfileSearchForm = ({ onSearch, onClear, isLoading = false }) => {
                   <Select
                     {...field}
                     label="Área"
+                    disabled={areasLoading}
+                    endAdornment={areasLoading ? <CircularProgress size={20} /> : null}
                   >
                     <MenuItem value="">Todas</MenuItem>
                     {areas.map((area) => (
-                      <MenuItem key={area} value={area}>
-                        {area}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
-            />
-          </Box>
-
-          {/* Career Filter */}
-          <Box sx={{ flex: { xs: '1 1 calc(50% - 12px)', md: '1 1 calc(25% - 12px)' } }}>
-            <Controller
-              name="career"
-              control={control}
-              render={({ field }) => (
-                <FormControl fullWidth>
-                  <InputLabel>Carrera</InputLabel>
-                  <Select
-                    {...field}
-                    label="Carrera"
-                  >
-                    <MenuItem value="">Todas</MenuItem>
-                    {careers.map((career) => (
-                      <MenuItem key={career} value={career}>
-                        {career}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
-            />
-          </Box>
-
-          {/* Experience Level Filter */}
-          <Box sx={{ flex: { xs: '1 1 calc(50% - 12px)', md: '1 1 calc(25% - 12px)' } }}>
-            <Controller
-              name="experienceLevel"
-              control={control}
-              render={({ field }) => (
-                <FormControl fullWidth>
-                  <InputLabel>Experiencia</InputLabel>
-                  <Select
-                    {...field}
-                    label="Experiencia"
-                  >
-                    <MenuItem value="">Todos</MenuItem>
-                    {experienceLevels.map((level) => (
-                      <MenuItem key={level} value={level}>
-                        {level}
+                      <MenuItem key={area.id_area} value={area.nombre}>
+                        {area.nombre}
                       </MenuItem>
                     ))}
                   </Select>
@@ -160,6 +115,15 @@ const ProfileSearchForm = ({ onSearch, onClear, isLoading = false }) => {
             />
           </Box>
         </Box>
+
+        {/* Error Message for Areas */}
+        {areasError && (
+          <Box sx={{ mb: 2, p: 2, backgroundColor: 'error.light', borderRadius: 1 }}>
+            <Typography variant="body2" color="error.main">
+              Error al cargar las áreas. Por favor, recarga la página.
+            </Typography>
+          </Box>
+        )}
 
         {/* Active Filters */}
         {hasActiveFilters && (

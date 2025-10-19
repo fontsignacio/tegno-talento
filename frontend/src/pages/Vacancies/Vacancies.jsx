@@ -19,12 +19,12 @@ import {
   Chip,
   IconButton,
   Fab,
+  useTheme,
+  useMediaQuery,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  useTheme,
-  useMediaQuery,
 } from '@mui/material';
 import {
   Add,
@@ -47,14 +47,19 @@ const Vacancies = () => {
   const [selectedVacancy, setSelectedVacancy] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const { data, isLoading, error } = useVacanciesQuery();
+  const [filters, setFilters] = useState({});
+  const { data, isLoading, error } = useVacanciesQuery(filters);
 
   const handleCreateVacancy = () => {
     navigate('/vacantes/nueva');
   };
 
   const handleViewDetail = (vacancy) => {
-    navigate(`/vacantes/${vacancy.id}`);
+    navigate(`/vacantes/${vacancy.id_vacante}`);
+  };
+
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
   };
 
   const handleViewCandidates = (vacancy) => {
@@ -101,11 +106,10 @@ const Vacancies = () => {
     });
   };
 
-  const activeVacancies = data?.data?.filter(v => v.status === 'activa') || [];
-  const pendingVacancies = data?.data?.filter(v => v.status === 'pendiente') || [];
-  const closedVacancies = data?.data?.filter(v => v.status === 'cerrada') || [];
+  const activeVacancies = data?.filter(v => v.status === 'activa') || [];
+  const closedVacancies = data?.filter(v => v.status === 'cerrada') || [];
 
-  const totalCandidates = data?.data?.reduce((sum, vacancy) => sum + vacancy.candidatesCount, 0) || 0;
+  const totalCandidates = data?.reduce((sum, vacancy) => sum + (vacancy.candidatesCount || 0), 0) || 0;
 
   if (isLoading) {
     return (
@@ -138,6 +142,45 @@ const Vacancies = () => {
           </Typography>
         </Box>
 
+        {/* Filtros */}
+        <Paper sx={{ p: 3, mb: 4 }}>
+          <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+            Filtros
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+            <Button
+              variant={filters.status === 'activa' ? 'contained' : 'outlined'}
+              onClick={() => handleFilterChange({ ...filters, status: filters.status === 'activa' ? undefined : 'activa' })}
+            >
+              Solo Activas
+            </Button>
+            <Button
+              variant={filters.status === 'cerrada' ? 'contained' : 'outlined'}
+              onClick={() => handleFilterChange({ ...filters, status: filters.status === 'cerrada' ? undefined : 'cerrada' })}
+            >
+              Solo Cerradas
+            </Button>
+            <Button
+              variant={filters.tipo_empleado === 'INTERNO' ? 'contained' : 'outlined'}
+              onClick={() => handleFilterChange({ ...filters, tipo_empleado: filters.tipo_empleado === 'INTERNO' ? undefined : 'INTERNO' })}
+            >
+              Solo Internos
+            </Button>
+            <Button
+              variant={filters.tipo_empleado === 'EXTERNO' ? 'contained' : 'outlined'}
+              onClick={() => handleFilterChange({ ...filters, tipo_empleado: filters.tipo_empleado === 'EXTERNO' ? undefined : 'EXTERNO' })}
+            >
+              Solo Externos
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => setFilters({})}
+            >
+              Limpiar Filtros
+            </Button>
+          </Box>
+        </Paper>
+
         {/* Stats Cards */}
         <Box sx={{ 
           display: 'flex', 
@@ -155,7 +198,7 @@ const Vacancies = () => {
                   <Work sx={{ mr: 2, color: 'primary.main', fontSize: 40 }} />
                   <Box>
                     <Typography variant="h4" sx={{ fontWeight: 600 }}>
-                      {data?.data?.length || 0}
+                      {data?.length || 0}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       Total Vacantes
@@ -215,10 +258,10 @@ const Vacancies = () => {
                   <Assignment sx={{ mr: 2, color: 'info.main', fontSize: 40 }} />
                   <Box>
                     <Typography variant="h4" sx={{ fontWeight: 600 }}>
-                      {pendingVacancies.length}
+                      {closedVacancies.length}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Pendientes
+                      Cerradas
                     </Typography>
                   </Box>
                 </Box>
@@ -250,7 +293,7 @@ const Vacancies = () => {
             }}>
               {activeVacancies.map((vacancy) => (
                 <Box 
-                  key={vacancy.id}
+                  key={vacancy.id_vacante}
                   sx={{ 
                     minWidth: { xs: '100%', sm: 'calc(50% - 12px)', lg: 'calc(33.333% - 16px)' },
                     flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', lg: '1 1 calc(33.333% - 16px)' }
@@ -263,31 +306,6 @@ const Vacancies = () => {
           )}
         </Paper>
 
-        {/* Pending Vacancies */}
-        {pendingVacancies.length > 0 && (
-          <Paper sx={{ p: 3, mb: 4 }}>
-            <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }}>
-              Vacantes Pendientes
-            </Typography>
-            <Box sx={{ 
-              display: 'flex', 
-              flexWrap: 'wrap', 
-              gap: 3
-            }}>
-              {pendingVacancies.map((vacancy) => (
-                <Box 
-                  key={vacancy.id}
-                  sx={{ 
-                    minWidth: { xs: '100%', sm: 'calc(50% - 12px)', lg: 'calc(33.333% - 16px)' },
-                    flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', lg: '1 1 calc(33.333% - 16px)' }
-                  }}
-                >
-                  <VacancyCard vacancy={vacancy} />
-                </Box>
-              ))}
-            </Box>
-          </Paper>
-        )}
 
         {/* Closed Vacancies */}
         {closedVacancies.length > 0 && (
@@ -302,7 +320,7 @@ const Vacancies = () => {
             }}>
               {closedVacancies.map((vacancy) => (
                 <Box 
-                  key={vacancy.id}
+                  key={vacancy.id_vacante}
                   sx={{ 
                     minWidth: { xs: '100%', sm: 'calc(50% - 12px)', lg: 'calc(33.333% - 16px)' },
                     flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 12px)', lg: '1 1 calc(33.333% - 16px)' }
@@ -316,7 +334,7 @@ const Vacancies = () => {
         )}
 
         {/* All Vacancies Table (Desktop) */}
-        {!isMobile && data?.data && data.data.length > 0 && (
+        {!isMobile && data && data.length > 0 && (
           <Paper sx={{ p: 3 }}>
             <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }}>
               Todas las Vacantes
@@ -325,23 +343,23 @@ const Vacancies = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Título</TableCell>
+                    <TableCell>Puesto</TableCell>
                     <TableCell>Estado</TableCell>
                     <TableCell>Candidatos</TableCell>
                     <TableCell>Fecha de Cierre</TableCell>
-                    <TableCell>Tipo</TableCell>
+                    <TableCell>Área</TableCell>
                     <TableCell>Acciones</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {data.data.map((vacancy) => (
-                    <TableRow key={vacancy.id}>
+                  {data.map((vacancy) => (
+                    <TableRow key={vacancy.id_vacante}>
                       <TableCell>
                         <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                          {vacancy.title}
+                          {vacancy.puesto?.nombre || 'Sin título'}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          {vacancy.description.substring(0, 100)}...
+                          {(vacancy.descripcion || vacancy.puesto?.descripcion || 'Sin descripción').substring(0, 100)}...
                         </Typography>
                       </TableCell>
                       <TableCell>
@@ -354,18 +372,18 @@ const Vacancies = () => {
                       <TableCell>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                           <People sx={{ mr: 1, fontSize: 16, color: 'text.secondary' }} />
-                          {vacancy.candidatesCount}
+                          {vacancy.candidatesCount || 0}
                         </Box>
                       </TableCell>
                       <TableCell>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                           <Schedule sx={{ mr: 1, fontSize: 16, color: 'text.secondary' }} />
-                          {formatDate(vacancy.closingDate)}
+                          {vacancy.fecha_cierre ? formatDate(vacancy.fecha_cierre) : 'Sin fecha'}
                         </Box>
                       </TableCell>
                       <TableCell>
                         <Chip
-                          label={vacancy.type === 'interna' ? 'Interna' : 'Externa'}
+                          label={vacancy.puesto?.area?.nombre || 'Sin área'}
                           variant="outlined"
                           size="small"
                         />

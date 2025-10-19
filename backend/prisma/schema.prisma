@@ -22,6 +22,7 @@ model puesto {
   area        area     @relation(fields: [area_id], references: [id_area])
   vacantes    vacante[]
   empleados   empleado[]
+  puesto_habilidades puesto_habilidad[]
 }
 
 model habilidad {
@@ -30,6 +31,7 @@ model habilidad {
   tipo                 tipo_habilidad
   vacante_habilidades  vacante_habilidad[]
   empleado_habilidades empleado_habilidad[]
+  puesto_habilidades   puesto_habilidad[]
 }
 
 model empleado {
@@ -70,6 +72,17 @@ model vacante_habilidad {
   peso                 Decimal  @db.Decimal(5, 2)
   vacante              vacante  @relation(fields: [vacante_id], references: [id_vacante])
   habilidad            habilidad @relation(fields: [habilidad_id], references: [id_habilidad])
+}
+
+model puesto_habilidad {
+  id_puesto_habilidad Int      @id @default(autoincrement())
+  puesto_id           Int
+  habilidad_id        Int
+  nivel_requerido     Int
+  critica             Boolean  @default(false)
+  peso                Decimal  @db.Decimal(5, 2)
+  puesto              puesto   @relation(fields: [puesto_id], references: [id_puesto])
+  habilidad           habilidad @relation(fields: [habilidad_id], references: [id_habilidad])
 }
 
 model empleado_habilidad {

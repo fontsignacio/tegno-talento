@@ -42,7 +42,7 @@ const Navbar = () => {
 
   const menuItems = [
     { label: 'Inicio', path: '/', icon: <Home /> },
-    { label: 'Perfiles', path: '/perfiles', icon: <Person /> },
+    { label: 'Puestos', path: '/perfiles', icon: <Person /> },
     { label: 'Vacantes', path: '/vacantes', icon: <Work /> },
     { label: 'Chatbot', path: '/chatbot', icon: <Chat /> },
   ];
@@ -59,10 +59,14 @@ const Navbar = () => {
             flexGrow: 1,
             fontWeight: 700,
             cursor: 'pointer',
+            color: 'primary.main',
+            '&:hover': {
+              color: 'primary.dark',
+            },
           }}
           onClick={() => navigate('/')}
         >
-          Sistema de Gestión de Talentos
+          TecnoTalento
         </Typography>
 
         {isMobile ? (
@@ -70,7 +74,7 @@ const Navbar = () => {
             <IconButton
               size="large"
               edge="end"
-              color="inherit"
+              color="primary"
               onClick={handleMobileMenuOpen}
             >
               <MenuIcon />
@@ -93,6 +97,14 @@ const Navbar = () => {
                   key={item.path}
                   onClick={() => handleNavigation(item.path)}
                   selected={isActive(item.path)}
+                  sx={{
+                    color: isActive(item.path) ? 'primary.main' : 'text.primary',
+                    fontWeight: isActive(item.path) ? 600 : 400,
+                    '&:hover': {
+                      backgroundColor: 'rgba(25,118,210,0.1)',
+                      color: 'primary.main',
+                    },
+                  }}
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     {item.icon}
@@ -111,9 +123,12 @@ const Navbar = () => {
                 onClick={() => handleNavigation(item.path)}
                 startIcon={item.icon}
                 sx={{
-                  backgroundColor: isActive(item.path) ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  backgroundColor: isActive(item.path) ? 'rgba(25,118,210,0.1)' : 'transparent',
+                  color: isActive(item.path) ? 'primary.main' : 'text.primary',
+                  fontWeight: isActive(item.path) ? 600 : 400,
                   '&:hover': {
-                    backgroundColor: 'rgba(255,255,255,0.1)',
+                    backgroundColor: 'rgba(25,118,210,0.1)',
+                    color: 'primary.main',
                   },
                 }}
               >

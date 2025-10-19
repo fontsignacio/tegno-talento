@@ -13,7 +13,6 @@ import {
   Divider,
   Card,
   CardContent,
-  LinearProgress,
   Avatar,
 } from '@mui/material';
 import {
@@ -23,17 +22,19 @@ import {
   Schedule,
   Group,
   TrendingUp,
-  CheckCircle,
-  Star,
 } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useVacancyQuery } from '../../hooks/useVacanciesQuery';
+import { useVacancyQuery, useCandidatesByVacancyQuery } from '../../hooks/useVacanciesQuery';
 import CandidateCard from '../../components/CandidateCard/CandidateCard';
 
 const VacancyDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { data, isLoading, error } = useVacancyQuery(id);
+  const { data: vacancyData, isLoading: vacancyLoading, error: vacancyError } = useVacancyQuery(id);
+  const { data: candidatesData, isLoading: candidatesLoading, error: candidatesError } = useCandidatesByVacancyQuery(id);
+
+  const isLoading = vacancyLoading || candidatesLoading;
+  const error = vacancyError || candidatesError;
 
   if (isLoading) {
     return (
@@ -53,7 +54,7 @@ const VacancyDetail = () => {
     );
   }
 
-  if (!data?.data) {
+  if (!vacancyData) {
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Alert severity="warning">
@@ -63,8 +64,9 @@ const VacancyDetail = () => {
     );
   }
 
-  const vacancy = data.data;
-  const { internalCandidates, externalCandidates } = vacancy;
+  const vacancy = vacancyData;
+  const internalCandidates = candidatesData?.top5Internos || [];
+  const externalCandidates = candidatesData?.externos || [];
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -135,7 +137,7 @@ const VacancyDetail = () => {
             <Box sx={{ flex: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Typography variant="h4" component="h1" sx={{ fontWeight: 600, mr: 2 }}>
-                  {vacancy.title}
+                  {vacancy.puesto?.nombre || 'Sin título'}
                 </Typography>
                 <Chip
                   label={getStatusLabel(vacancy.status)}
@@ -144,24 +146,26 @@ const VacancyDetail = () => {
                 />
               </Box>
               <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
-                {vacancy.description}
+                {vacancy.descripcion || vacancy.puesto?.descripcion || 'Sin descripción'}
               </Typography>
               <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap>
                 <Chip
                   icon={<People />}
-                  label={`${vacancy.candidatesCount} candidatos`}
+                  label={`${vacancy.candidatesCount || 0} candidatos`}
                   color="info"
                   variant="outlined"
                 />
-                <Chip
-                  icon={<Schedule />}
-                  label={`Cierre: ${formatDate(vacancy.closingDate)}`}
-                  color="secondary"
-                  variant="outlined"
-                />
+                {vacancy.fecha_cierre && (
+                  <Chip
+                    icon={<Schedule />}
+                    label={`Cierre: ${formatDate(vacancy.fecha_cierre)}`}
+                    color="secondary"
+                    variant="outlined"
+                  />
+                )}
                 <Chip
                   icon={<Group />}
-                  label={vacancy.type === 'interna' ? 'Interna' : 'Externa'}
+                  label={vacancy.puesto?.area?.nombre || 'Sin área'}
                   color="primary"
                   variant="outlined"
                 />
@@ -182,14 +186,14 @@ const VacancyDetail = () => {
                 Habilidades Técnicas Requeridas
               </Typography>
               <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                {vacancy.requirements.technical.map((skill, index) => (
+                {vacancy.requirements?.technical?.map((skill, index) => (
                   <Chip
                     key={index}
                     label={skill}
                     color="primary"
                     variant="outlined"
                   />
-                ))}
+                )) || <Typography variant="body2" color="text.secondary">No especificadas</Typography>}
               </Stack>
             </Box>
 
@@ -199,14 +203,14 @@ const VacancyDetail = () => {
                 Habilidades Blandas Requeridas
               </Typography>
               <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                {vacancy.requirements.soft.map((skill, index) => (
+                {vacancy.requirements?.soft?.map((skill, index) => (
                   <Chip
                     key={index}
                     label={skill}
                     color="secondary"
                     variant="outlined"
                   />
-                ))}
+                )) || <Typography variant="body2" color="text.secondary">No especificadas</Typography>}
               </Stack>
             </Box>
           </Box>
@@ -241,7 +245,7 @@ const VacancyDetail = () => {
               ) : (
                 <Stack spacing={3}>
                   {internalCandidates.map((candidate, index) => (
-                    <Card key={candidate.id} variant="outlined">
+                    <Card key={candidate.id_empleado} variant="outlined">
                       <CardContent>
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                           <Avatar
@@ -252,60 +256,40 @@ const VacancyDetail = () => {
                               height: 40,
                             }}
                           >
-                            {candidate.name.charAt(0)}
+                            {candidate.nombre.charAt(0)}
                           </Avatar>
                           <Box sx={{ flex: 1 }}>
                             <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                              {candidate.name}
+                              {candidate.nombre}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              {candidate.email}
+                              {candidate.correo}
                             </Typography>
                           </Box>
                           <Box sx={{ textAlign: 'right' }}>
-                            <Typography variant="h6" color="primary.main" sx={{ fontWeight: 600 }}>
-                              {candidate.suitabilityPercentage}%
-                            </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              Idoneidad
+                              {candidate.puesto?.nombre || 'Sin puesto'}
                             </Typography>
                           </Box>
-                        </Box>
-
-                        <Box sx={{ mb: 2 }}>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                            <Typography variant="body2" color="text.secondary">
-                              Idoneidad
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              {candidate.suitabilityPercentage}%
-                            </Typography>
-                          </Box>
-                          <LinearProgress
-                            variant="determinate"
-                            value={candidate.suitabilityPercentage}
-                            color={getSuitabilityColor(candidate.suitabilityPercentage)}
-                            sx={{ height: 8, borderRadius: 4 }}
-                          />
                         </Box>
 
                         <Box sx={{ mb: 2 }}>
                           <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                            Habilidades coincidentes:
+                            Habilidades:
                           </Typography>
                           <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
-                            {candidate.technicalSkills.slice(0, 4).map((skill, skillIndex) => (
+                            {candidate.empleado_habilidades?.slice(0, 4).map((eh, skillIndex) => (
                               <Chip
                                 key={skillIndex}
-                                label={skill}
+                                label={eh.habilidad.nombre}
                                 size="small"
-                                color="success"
+                                color={eh.habilidad.tipo === 'tecnica' ? 'primary' : 'secondary'}
                                 variant="outlined"
                               />
                             ))}
-                            {candidate.technicalSkills.length > 4 && (
+                            {candidate.empleado_habilidades?.length > 4 && (
                               <Chip
-                                label={`+${candidate.technicalSkills.length - 4} más`}
+                                label={`+${candidate.empleado_habilidades.length - 4} más`}
                                 size="small"
                                 variant="outlined"
                               />
@@ -316,7 +300,7 @@ const VacancyDetail = () => {
                         <Button
                           variant="outlined"
                           size="small"
-                          onClick={() => navigate(`/candidatos/${candidate.id}`)}
+                          onClick={() => navigate(`/candidatos/${candidate.id_empleado}`)}
                           fullWidth
                         >
                           Ver Perfil Completo
@@ -335,7 +319,7 @@ const VacancyDetail = () => {
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                 <People sx={{ mr: 1, color: 'secondary.main' }} />
                 <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                  Top 5 Candidatos Externos
+                  Candidatos Externos
                 </Typography>
               </Box>
 
@@ -352,7 +336,7 @@ const VacancyDetail = () => {
               ) : (
                 <Stack spacing={3}>
                   {externalCandidates.map((candidate, index) => (
-                    <Card key={candidate.id} variant="outlined">
+                    <Card key={candidate.id_empleado} variant="outlined">
                       <CardContent>
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                           <Avatar
@@ -363,71 +347,27 @@ const VacancyDetail = () => {
                               height: 40,
                             }}
                           >
-                            {candidate.name.charAt(0)}
+                            {candidate.nombre.charAt(0)}
                           </Avatar>
                           <Box sx={{ flex: 1 }}>
                             <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                              {candidate.name}
+                              {candidate.nombre}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              {candidate.email}
+                              {candidate.correo}
                             </Typography>
                           </Box>
                           <Box sx={{ textAlign: 'right' }}>
-                            <Typography variant="h6" color="secondary.main" sx={{ fontWeight: 600 }}>
-                              {candidate.suitabilityPercentage}%
-                            </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              Idoneidad
+                              {candidate.puesto?.nombre || 'Sin puesto'}
                             </Typography>
                           </Box>
-                        </Box>
-
-                        <Box sx={{ mb: 2 }}>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                            <Typography variant="body2" color="text.secondary">
-                              Idoneidad
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              {candidate.suitabilityPercentage}%
-                            </Typography>
-                          </Box>
-                          <LinearProgress
-                            variant="determinate"
-                            value={candidate.suitabilityPercentage}
-                            color={getSuitabilityColor(candidate.suitabilityPercentage)}
-                            sx={{ height: 8, borderRadius: 4 }}
-                          />
-                        </Box>
-
-                        <Box sx={{ mb: 2 }}>
-                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                            Habilidades coincidentes:
-                          </Typography>
-                          <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
-                            {candidate.technicalSkills.slice(0, 4).map((skill, skillIndex) => (
-                              <Chip
-                                key={skillIndex}
-                                label={skill}
-                                size="small"
-                                color="success"
-                                variant="outlined"
-                              />
-                            ))}
-                            {candidate.technicalSkills.length > 4 && (
-                              <Chip
-                                label={`+${candidate.technicalSkills.length - 4} más`}
-                                size="small"
-                                variant="outlined"
-                              />
-                            )}
-                          </Stack>
                         </Box>
 
                         <Button
                           variant="outlined"
                           size="small"
-                          onClick={() => navigate(`/candidatos/${candidate.id}`)}
+                          onClick={() => navigate(`/candidatos/${candidate.id_empleado}`)}
                           fullWidth
                         >
                           Ver Perfil Completo

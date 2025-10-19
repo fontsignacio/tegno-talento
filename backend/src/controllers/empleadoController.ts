@@ -4,7 +4,13 @@ import { CreateEmpleadoDTO, UpdateEmpleadoDTO } from "../types/empleado";
 
 export const getAllEmpleados = async (req: Request, res: Response) => {
   try {
-    const empleados = await empleadoService.getAllEmpleados();
+    const { tipo_empleado, puesto_id } = req.query;
+    const filters: { tipo_empleado?: string; puesto_id?: number } = {};
+    
+    if (tipo_empleado) filters.tipo_empleado = tipo_empleado as string;
+    if (puesto_id) filters.puesto_id = parseInt(puesto_id as string);
+    
+    const empleados = await empleadoService.getAllEmpleados(filters);
     res.json(empleados);
   } catch (error) {
     console.error("Error getting empleados:", error);

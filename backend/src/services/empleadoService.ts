@@ -1,8 +1,19 @@
 import prisma from "../config/db";
 import { CreateEmpleadoDTO, UpdateEmpleadoDTO } from "../types/empleado";
 
-export const getAllEmpleados = async () => {
+export const getAllEmpleados = async (filters: { tipo_empleado?: string; puesto_id?: number } = {}) => {
+  const where: any = {};
+  
+  if (filters.tipo_empleado) {
+    where.tipo_empleado = filters.tipo_empleado;
+  }
+  
+  if (filters.puesto_id) {
+    where.puesto_id = filters.puesto_id;
+  }
+
   return prisma.empleado.findMany({
+    where,
     include: {
       puesto: {
         include: {

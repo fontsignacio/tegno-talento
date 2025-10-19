@@ -28,8 +28,8 @@ const Home = () => {
   const features = [
     {
       icon: <Person sx={{ fontSize: 40, color: 'primary.main' }} />,
-      title: 'Perfiles Profesionales',
-      description: 'Explora perfiles diseñados específicamente para estudiantes de Ingeniería en Sistemas',
+      title: 'Puestos',
+      description: 'Explora los puestos en nuestro equipo y nosotros',
       action: 'Ver Perfiles',
       path: '/perfiles',
     },
@@ -236,68 +236,6 @@ const Home = () => {
                 </Card>
               </Box>
             ))}
-          </Box>
-        </Container>
-      </Box>
-
-      {/* About Section */}
-      <Box sx={{ py: 8, backgroundColor: 'background.paper' }}>
-        <Container maxWidth="lg">
-          <Box sx={{ 
-            display: 'flex', 
-            flexDirection: { xs: 'column', md: 'row' },
-            gap: 6,
-            alignItems: 'center'
-          }}>
-            <Box sx={{ flex: 1 }}>
-              <Typography variant="h4" component="h2" sx={{ fontWeight: 600, mb: 3 }}>
-                ¿Por qué elegir nuestro sistema?
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 3, lineHeight: 1.7 }}>
-                Este sistema de demostración está diseñado específicamente para estudiantes
-                de nivel secundario e ingresantes a Ingeniería en Sistemas de Información.
-                Su propósito es mostrar de forma atractiva y profesional cómo podría
-                funcionar un sistema de capital humano moderno.
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <School sx={{ mr: 1, color: 'primary.main' }} />
-                  <Typography variant="body2" fontWeight={500}>
-                    Enfoque Educativo
-                  </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <TrendingUp sx={{ mr: 1, color: 'success.main' }} />
-                  <Typography variant="body2" fontWeight={500}>
-                    Tecnología Moderna
-                  </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Group sx={{ mr: 1, color: 'secondary.main' }} />
-                  <Typography variant="body2" fontWeight={500}>
-                    Comunidad Activa
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-            <Box sx={{ 
-              flex: 1,
-              height: 300,
-              backgroundColor: 'primary.main',
-              borderRadius: 2,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-            }}>
-              <Typography variant="h6" sx={{ textAlign: 'center' }}>
-                Demostración Interactiva
-                <br />
-                <Typography variant="body2" sx={{ opacity: 0.8, mt: 1 }}>
-                  Explora todas las funcionalidades
-                </Typography>
-              </Typography>
-            </Box>
           </Box>
         </Container>
       </Box>

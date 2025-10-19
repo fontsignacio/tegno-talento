@@ -20,7 +20,6 @@ export interface CreateVacanteDTO {
 export interface UpdateVacanteDTO {
   descripcion?: string;
   fecha_cierre?: Date;
-  puesto_id?: number;
   peso_experiencia?: number;
   peso_educacion?: number;
   experiencia_req?: number;

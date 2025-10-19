@@ -61,7 +61,7 @@ const Chatbot = () => {
               flex: { xs: '1 1 100%', md: '1 1 calc(50% - 8px)' }
             }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-                📋 Perfiles Profesionales
+                📋 Puestos del equipo TecnoTalento
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Pregunta sobre los perfiles disponibles, requisitos, beneficios o cómo encontrar el perfil adecuado para ti.

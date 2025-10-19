@@ -120,12 +120,6 @@ const ProfileDetail = () => {
               </Typography>
               <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap>
                 <Chip
-                  icon={<School />}
-                  label={profile.career}
-                  color="primary"
-                  variant="outlined"
-                />
-                <Chip
                   icon={<Work />}
                   label={profile.area}
                   color="secondary"
@@ -146,33 +140,37 @@ const ProfileDetail = () => {
             flexDirection: { xs: 'column', md: 'row' },
             gap: 4
           }}>
-            {/* Requirements */}
+            {/* Technical Skills */}
             <Box sx={{ flex: 1 }}>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                Requisitos Principales
+                Habilidades Técnicas
               </Typography>
-              <Stack spacing={1}>
-                {profile.requirements.map((requirement, index) => (
-                  <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
-                    <CheckCircle sx={{ mr: 1, color: 'success.main', fontSize: 20 }} />
-                    <Typography variant="body1">{requirement}</Typography>
-                  </Box>
-                ))}
+              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                {profile.requirements?.technical?.map((skill, index) => (
+                  <Chip
+                    key={index}
+                    label={skill}
+                    color="primary"
+                    variant="outlined"
+                  />
+                )) || <Typography variant="body2" color="text.secondary">No especificadas</Typography>}
               </Stack>
             </Box>
 
-            {/* Benefits */}
+            {/* Soft Skills */}
             <Box sx={{ flex: 1 }}>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                Beneficios Ofrecidos
+                Habilidades Blandas
               </Typography>
-              <Stack spacing={1}>
-                {profile.benefits.map((benefit, index) => (
-                  <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Star sx={{ mr: 1, color: 'warning.main', fontSize: 20 }} />
-                    <Typography variant="body1">{benefit}</Typography>
-                  </Box>
-                ))}
+              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                {profile.requirements?.soft?.map((skill, index) => (
+                  <Chip
+                    key={index}
+                    label={skill}
+                    color="secondary"
+                    variant="outlined"
+                  />
+                )) || <Typography variant="body2" color="text.secondary">No especificadas</Typography>}
               </Stack>
             </Box>
           </Box>

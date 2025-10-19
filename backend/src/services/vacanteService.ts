@@ -1,29 +1,130 @@
 import prisma from "../config/db";
 import { CreateVacanteDTO, UpdateVacanteDTO } from "../types/vacante";
 
-export const getAllVacantes = async () => {
-  return prisma.vacante.findMany({
+export const getAllVacantes = async (filters: { status?: string; tipo_empleado?: string } = {}) => {
+  const where: any = {};
+
+  // Filtro por status (derivado de fecha_cierre)
+  if (filters.status) {
+    const now = new Date();
+    if (filters.status === 'activa') {
+      where.OR = [
+        { fecha_cierre: null },
+        { fecha_cierre: { gt: now } }
+      ];
+    } else if (filters.status === 'cerrada') {
+      where.fecha_cierre = { lte: now };
+    }
+  }
+
+  const vacantes = await prisma.vacante.findMany({
+    where,
     include: {
       puesto: {
         include: {
           area: true
         }
+      },
+      vacante_habilidades: {
+        include: {
+          habilidad: true
+        }
       }
     }
+  });
+
+  // Si hay filtro por tipo_empleado, filtrar por empleados que coincidan
+  if (filters.tipo_empleado) {
+    const vacantesFiltradas = [];
+    
+    for (const vacante of vacantes) {
+      const empleadosCount = await prisma.empleado.count({
+        where: { 
+          puesto_id: vacante.puesto_id,
+          tipo_empleado: filters.tipo_empleado as any
+        }
+      });
+      
+      if (empleadosCount > 0) {
+        vacantesFiltradas.push(vacante);
+      }
+    }
+    
+    return vacantesFiltradas;
+  }
+
+  // Agregar datos derivados a cada vacante
+  return vacantes.map(vacante => {
+    const now = new Date();
+    const status = !vacante.fecha_cierre || vacante.fecha_cierre > now ? 'activa' : 'cerrada';
+    
+    const technicalSkills = vacante.vacante_habilidades
+      .filter(vh => vh.habilidad.tipo === 'tecnica')
+      .map(vh => vh.habilidad.nombre);
+
+    const softSkills = vacante.vacante_habilidades
+      .filter(vh => vh.habilidad.tipo === 'blanda')
+      .map(vh => vh.habilidad.nombre);
+
+    return {
+      ...vacante,
+      status,
+      requirements: {
+        technical: technicalSkills,
+        soft: softSkills
+      }
+    };
   });
 };
 
 export const getVacanteById = async (id: number) => {
-  return prisma.vacante.findUnique({
+  const vacante = await prisma.vacante.findUnique({
     where: { id_vacante: id },
     include: {
       puesto: {
         include: {
           area: true
         }
+      },
+      vacante_habilidades: {
+        include: {
+          habilidad: true
+        }
       }
     }
   });
+
+  if (!vacante) {
+    return null;
+  }
+
+  // Contar candidatos (empleados) que coincidan con el puesto
+  const candidatesCount = await prisma.empleado.count({
+    where: { puesto_id: vacante.puesto_id }
+  });
+
+  // Derivar status basado en fecha_cierre
+  const now = new Date();
+  const status = !vacante.fecha_cierre || vacante.fecha_cierre > now ? 'activa' : 'cerrada';
+
+  // Separar habilidades técnicas y blandas
+  const technicalSkills = vacante.vacante_habilidades
+    .filter(vh => vh.habilidad.tipo === 'tecnica')
+    .map(vh => vh.habilidad.nombre);
+
+  const softSkills = vacante.vacante_habilidades
+    .filter(vh => vh.habilidad.tipo === 'blanda')
+    .map(vh => vh.habilidad.nombre);
+
+  return {
+    ...vacante,
+    status,
+    candidatesCount,
+    requirements: {
+      technical: technicalSkills,
+      soft: softSkills
+    }
+  };
 };
 
 export const getVacantesByPuesto = async (puestoId: number) => {
@@ -137,9 +238,11 @@ export const createVacante = async (data: CreateVacanteDTO) => {
 
 
 export const updateVacante = async (id: number, data: UpdateVacanteDTO) => {
-  return prisma.vacante.update({
+  const { vacante_habilidades, ...vacanteData } = data;
+  
+  const vacante = await prisma.vacante.update({
     where: { id_vacante: id },
-    data,
+    data: vacanteData,
     include: {
       puesto: {
         include: {
@@ -148,10 +251,79 @@ export const updateVacante = async (id: number, data: UpdateVacanteDTO) => {
       }
     }
   });
+
+  // Si se proporcionan habilidades, actualizarlas
+  if (vacante_habilidades) {
+    // Eliminar habilidades existentes
+    await prisma.vacante_habilidad.deleteMany({
+      where: { vacante_id: id }
+    });
+
+    // Crear nuevas habilidades
+    if (vacante_habilidades.length > 0) {
+      await prisma.vacante_habilidad.createMany({
+        data: vacante_habilidades.map(vh => ({
+          vacante_id: id,
+          habilidad_id: vh.habilidad_id,
+          nivel_requerido: vh.nivel_requerido,
+          critica: vh.critica || false,
+          peso: vh.peso
+        }))
+      });
+    }
+  }
+
+  return vacante;
 };
 
 export const deleteVacante = async (id: number) => {
   return prisma.vacante.delete({
     where: { id_vacante: id }
   });
+};
+
+export const getCandidatosByVacante = async (vacanteId: number) => {
+  // Primero obtener la vacante para conseguir el puesto_id
+  const vacante = await prisma.vacante.findUnique({
+    where: { id_vacante: vacanteId },
+    select: { puesto_id: true }
+  });
+
+  if (!vacante) {
+    throw new Error('Vacante no encontrada');
+  }
+
+  // Obtener empleados que coincidan con el puesto_id
+  const empleados = await prisma.empleado.findMany({
+    where: { puesto_id: vacante.puesto_id },
+    include: {
+      puesto: {
+        include: {
+          area: true
+        }
+      },
+      empleado_habilidades: {
+        include: {
+          habilidad: true
+        }
+      }
+    }
+  });
+
+  // Separar en internos y externos, y mezclar aleatoriamente
+  const internos = empleados
+    .filter(emp => emp.tipo_empleado === 'INTERNO')
+    .sort(() => Math.random() - 0.5);
+  
+  const externos = empleados
+    .filter(emp => emp.tipo_empleado === 'EXTERNO')
+    .sort(() => Math.random() - 0.5);
+    
+  const top5Internos = internos.slice(0, 5);
+
+  return {
+    internos,
+    externos,
+    top5Internos,
+  };
 };

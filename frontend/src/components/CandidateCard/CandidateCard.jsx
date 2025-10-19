@@ -25,7 +25,7 @@ const CandidateCard = ({ candidate, showSuitability = false }) => {
   const navigate = useNavigate();
 
   const handleViewDetail = () => {
-    navigate(`/candidatos/${candidate.id}`);
+    navigate(`/candidatos/${candidate.id_empleado}`);
   };
 
   const getSuitabilityColor = (percentage) => {
@@ -67,109 +67,52 @@ const CandidateCard = ({ candidate, showSuitability = false }) => {
               fontSize: '1.2rem',
             }}
           >
-            {getInitials(candidate.name)}
+            {getInitials(candidate.nombre)}
           </Avatar>
           <Box sx={{ flex: 1 }}>
             <Typography variant="h6" component="h2" sx={{ fontWeight: 600, mb: 0.5 }}>
-              {candidate.name}
+              {candidate.nombre}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
               <Email sx={{ mr: 0.5, fontSize: 14, color: 'text.secondary' }} />
               <Typography variant="body2" color="text.secondary">
-                {candidate.email}
+                {candidate.correo}
               </Typography>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <LocationOn sx={{ mr: 0.5, fontSize: 14, color: 'text.secondary' }} />
-              <Typography variant="body2" color="text.secondary">
-                {candidate.location}
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
-
-        {showSuitability && (
-          <Box sx={{ mb: 2 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                Idoneidad:
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {candidate.suitabilityPercentage}%
-              </Typography>
-            </Box>
-            <LinearProgress
-              variant="determinate"
-              value={candidate.suitabilityPercentage}
-              color={getSuitabilityColor(candidate.suitabilityPercentage)}
-              sx={{ height: 8, borderRadius: 4 }}
-            />
-          </Box>
-        )}
-
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-            Habilidades técnicas:
-          </Typography>
-          <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
-            {candidate.technicalSkills.slice(0, 4).map((skill, index) => (
-              <Chip
-                key={index}
-                label={skill}
-                size="small"
-                variant="outlined"
-                sx={{ fontSize: '0.75rem' }}
-              />
-            ))}
-            {candidate.technicalSkills.length > 4 && (
-              <Chip
-                label={`+${candidate.technicalSkills.length - 4} más`}
-                size="small"
-                variant="outlined"
-                sx={{ fontSize: '0.75rem' }}
-              />
-            )}
-          </Stack>
-        </Box>
-
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-            Habilidades blandas:
-          </Typography>
-          <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
-            {candidate.softSkills.slice(0, 3).map((skill, index) => (
-              <Chip
-                key={index}
-                label={skill}
-                size="small"
-                color="secondary"
-                variant="outlined"
-                sx={{ fontSize: '0.75rem' }}
-              />
-            ))}
-            {candidate.softSkills.length > 3 && (
-              <Chip
-                label={`+${candidate.softSkills.length - 3} más`}
-                size="small"
-                color="secondary"
-                variant="outlined"
-                sx={{ fontSize: '0.75rem' }}
-              />
-            )}
-          </Stack>
-        </Box>
-
-        {candidate.experience && candidate.experience.length > 0 && (
-          <Box>
-            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-              Experiencia reciente:
-            </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Work sx={{ mr: 0.5, fontSize: 14, color: 'text.secondary' }} />
               <Typography variant="body2" color="text.secondary">
-                {candidate.experience[0].position} - {candidate.experience[0].company}
+                {candidate.puesto?.nombre || 'Sin puesto'}
               </Typography>
             </Box>
+          </Box>
+        </Box>
+
+        {candidate.empleado_habilidades && candidate.empleado_habilidades.length > 0 && (
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+              Habilidades:
+            </Typography>
+            <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
+              {candidate.empleado_habilidades.slice(0, 4).map((eh, index) => (
+                <Chip
+                  key={index}
+                  label={eh.habilidad.nombre}
+                  size="small"
+                  variant="outlined"
+                  color={eh.habilidad.tipo === 'tecnica' ? 'primary' : 'secondary'}
+                  sx={{ fontSize: '0.75rem' }}
+                />
+              ))}
+              {candidate.empleado_habilidades.length > 4 && (
+                <Chip
+                  label={`+${candidate.empleado_habilidades.length - 4} más`}
+                  size="small"
+                  variant="outlined"
+                  sx={{ fontSize: '0.75rem' }}
+                />
+              )}
+            </Stack>
           </Box>
         )}
       </CardContent>

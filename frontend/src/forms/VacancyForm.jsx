@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -7,40 +7,43 @@ import {
   TextField,
   Button,
   FormControl,
-  FormLabel,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-  Chip,
-  Stack,
+  InputLabel,
+  Select,
+  MenuItem,
   Alert,
   CircularProgress,
   Divider,
+  Slider,
+  FormControlLabel,
+  Checkbox,
+  Grid,
 } from '@mui/material';
 import {
   ArrowBack,
   Save,
   Cancel,
   Add,
+  Delete,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useCreateVacancyMutation } from '../hooks/useVacanciesQuery';
+import { getPuestos, getHabilidades } from '../services/api';
 import { vacancySchema, defaultValues } from '../schemas/vacancySchema';
 
 const VacancyForm = () => {
   const navigate = useNavigate();
   const createVacancyMutation = useCreateVacancyMutation();
 
-  const [newTechnicalSkill, setNewTechnicalSkill] = useState('');
-  const [newSoftSkill, setNewSoftSkill] = useState('');
+  const [puestos, setPuestos] = useState([]);
+  const [habilidades, setHabilidades] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
-    setValue,
     watch,
     reset,
   } = useForm({
@@ -48,55 +51,34 @@ const VacancyForm = () => {
     defaultValues,
   });
 
-  const technicalSkills = watch('technicalSkills') || [];
-  const softSkills = watch('softSkills') || [];
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'vacante_habilidades'
+  });
 
-  const technicalSkillsOptions = [
-    'React', 'Vue.js', 'Angular', 'JavaScript', 'TypeScript', 'Python', 'Java',
-    'C#', 'PHP', 'Node.js', 'Express', 'Django', 'Flask', 'Spring Boot',
-    'SQL', 'MongoDB', 'PostgreSQL', 'MySQL', 'Git', 'Docker', 'AWS',
-    'Azure', 'Linux', 'Windows', 'macOS', 'Figma', 'Adobe XD', 'Sketch'
-  ];
+  // Cargar datos iniciales
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [puestosData, habilidadesData] = await Promise.all([
+          getPuestos(),
+          getHabilidades()
+        ]);
+        setPuestos(puestosData);
+        setHabilidades(habilidadesData);
+      } catch (error) {
+        console.error('Error loading data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const softSkillsOptions = [
-    'Comunicación', 'Trabajo en equipo', 'Liderazgo', 'Resolución de problemas',
-    'Pensamiento crítico', 'Adaptabilidad', 'Creatividad', 'Empatía',
-    'Gestión del tiempo', 'Organización', 'Proactividad', 'Aprendizaje continuo',
-    'Negociación', 'Mentoría', 'Colaboración', 'Flexibilidad'
-  ];
-
-  const handleAddTechnicalSkill = () => {
-    if (newTechnicalSkill.trim() && !technicalSkills.includes(newTechnicalSkill.trim())) {
-      setValue('technicalSkills', [...technicalSkills, newTechnicalSkill.trim()]);
-      setNewTechnicalSkill('');
-    }
-  };
-
-  const handleAddSoftSkill = () => {
-    if (newSoftSkill.trim() && !softSkills.includes(newSoftSkill.trim())) {
-      setValue('softSkills', [...softSkills, newSoftSkill.trim()]);
-      setNewSoftSkill('');
-    }
-  };
-
-  const handleRemoveTechnicalSkill = (skillToRemove) => {
-    setValue('technicalSkills', technicalSkills.filter(skill => skill !== skillToRemove));
-  };
-
-  const handleRemoveSoftSkill = (skillToRemove) => {
-    setValue('softSkills', softSkills.filter(skill => skill !== skillToRemove));
-  };
+    loadData();
+  }, []);
 
   const onSubmit = async (data) => {
     try {
-      await createVacancyMutation.mutateAsync({
-        ...data,
-        requirements: {
-          technical: data.technicalSkills,
-          soft: data.softSkills,
-        },
-      });
-      
+      await createVacancyMutation.mutateAsync(data);
       navigate('/vacantes');
     } catch (error) {
       console.error('Error creating vacancy:', error);
@@ -107,6 +89,23 @@ const VacancyForm = () => {
     reset();
     navigate('/vacantes');
   };
+
+  const addHabilidad = () => {
+    append({
+      habilidad_id: '',
+      nivel_requerido: 1,
+      peso: 50,
+      critica: false
+    });
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <CircularProgress size={60} />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default', py: 4 }}>
@@ -132,7 +131,7 @@ const VacancyForm = () => {
         <Paper sx={{ p: 4 }}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              {/* Basic Information */}
+              {/* Información Básica */}
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
                   Información Básica
@@ -141,250 +140,286 @@ const VacancyForm = () => {
               </Box>
 
               <Controller
-                name="title"
+                name="puesto_id"
                 control={control}
                 render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label="Título del puesto"
-                    error={!!errors.title}
-                    helperText={errors.title?.message}
-                    required
-                  />
-                )}
-              />
-
-              <Controller
-                name="description"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    label="Descripción del puesto"
-                    multiline
-                    rows={4}
-                    error={!!errors.description}
-                    helperText={errors.description?.message}
-                    required
-                  />
-                )}
-              />
-
-              <Box sx={{ 
-                display: 'flex', 
-                flexDirection: { xs: 'column', sm: 'row' },
-                gap: 3
-              }}>
-                <Controller
-                  name="experienceRequired"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="Experiencia requerida"
-                      error={!!errors.experienceRequired}
-                      helperText={errors.experienceRequired?.message}
-                      placeholder="Ej: 2-3 años en desarrollo frontend"
-                      required
-                    />
-                  )}
-                />
-
-                <Controller
-                  name="closingDate"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="Fecha de cierre"
-                      type="date"
-                      error={!!errors.closingDate}
-                      helperText={errors.closingDate?.message}
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                      required
-                    />
-                  )}
-                />
-              </Box>
-
-              {/* Type */}
-              <Controller
-                name="type"
-                control={control}
-                render={({ field }) => (
-                  <FormControl component="fieldset" error={!!errors.type}>
-                    <FormLabel component="legend">Tipo de vacante</FormLabel>
-                    <RadioGroup
-                      {...field}
-                      row
-                    >
-                      <FormControlLabel
-                        value="interna"
-                        control={<Radio />}
-                        label="Interna"
-                      />
-                      <FormControlLabel
-                        value="externa"
-                        control={<Radio />}
-                        label="Externa"
-                      />
-                    </RadioGroup>
-                    {errors.type && (
+                  <FormControl fullWidth error={!!errors.puesto_id}>
+                    <InputLabel>Puesto</InputLabel>
+                    <Select {...field} label="Puesto">
+                      {puestos.map((puesto) => (
+                        <MenuItem key={puesto.id_puesto} value={puesto.id_puesto}>
+                          {puesto.nombre} - {puesto.area?.nombre}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {errors.puesto_id && (
                       <Typography variant="body2" color="error" sx={{ mt: 1 }}>
-                        {errors.type.message}
+                        {errors.puesto_id.message}
                       </Typography>
                     )}
                   </FormControl>
                 )}
               />
 
-              {/* Technical Skills */}
+              <Controller
+                name="descripcion"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Descripción (opcional)"
+                    multiline
+                    rows={4}
+                    error={!!errors.descripcion}
+                    helperText={errors.descripcion?.message}
+                  />
+                )}
+              />
+
+              <Controller
+                name="fecha_cierre"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Fecha de cierre (opcional)"
+                    type="date"
+                    error={!!errors.fecha_cierre}
+                    helperText={errors.fecha_cierre?.message}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                  />
+                )}
+              />
+
+              {/* Requisitos */}
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                  Habilidades Técnicas Requeridas
+                  Requisitos
                 </Typography>
                 <Divider sx={{ mb: 3 }} />
               </Box>
 
-              <Box>
-                <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                  <TextField
-                    fullWidth
-                    label="Agregar habilidad técnica"
-                    value={newTechnicalSkill}
-                    onChange={(e) => setNewTechnicalSkill(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleAddTechnicalSkill();
-                      }
-                    }}
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6}>
+                  <Controller
+                    name="experiencia_req"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        label="Experiencia requerida (años)"
+                        type="number"
+                        error={!!errors.experiencia_req}
+                        helperText={errors.experiencia_req?.message}
+                        required
+                      />
+                    )}
                   />
-                  <Button
-                    variant="outlined"
-                    startIcon={<Add />}
-                    onClick={handleAddTechnicalSkill}
-                    disabled={!newTechnicalSkill.trim()}
-                  >
-                    Agregar
-                  </Button>
-                </Box>
-                
-                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 2 }}>
-                  {technicalSkills.map((skill) => (
-                    <Chip
-                      key={skill}
-                      label={skill}
-                      onDelete={() => handleRemoveTechnicalSkill(skill)}
-                      color="primary"
-                      variant="outlined"
-                    />
-                  ))}
-                </Stack>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Controller
+                    name="nivel_educ_req"
+                    control={control}
+                    render={({ field }) => (
+                      <FormControl fullWidth error={!!errors.nivel_educ_req}>
+                        <InputLabel>Nivel educativo requerido</InputLabel>
+                        <Select {...field} label="Nivel educativo requerido">
+                          <MenuItem value={1}>Primaria</MenuItem>
+                          <MenuItem value={2}>Secundaria</MenuItem>
+                          <MenuItem value={3}>Técnico</MenuItem>
+                          <MenuItem value={4}>Universitario</MenuItem>
+                          <MenuItem value={5}>Postgrado</MenuItem>
+                        </Select>
+                        {errors.nivel_educ_req && (
+                          <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+                            {errors.nivel_educ_req.message}
+                          </Typography>
+                        )}
+                      </FormControl>
+                    )}
+                  />
+                </Grid>
+              </Grid>
 
-                {errors.technicalSkills && (
-                  <Alert severity="error" sx={{ mt: 1 }}>
-                    {errors.technicalSkills.message}
-                  </Alert>
-                )}
-
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                  Habilidades sugeridas:
-                </Typography>
-                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                  {technicalSkillsOptions.slice(0, 10).map((skill) => (
-                    <Chip
-                      key={skill}
-                      label={skill}
-                      size="small"
-                      variant="outlined"
-                      onClick={() => {
-                        if (!technicalSkills.includes(skill)) {
-                          setValue('technicalSkills', [...technicalSkills, skill]);
-                        }
-                      }}
-                      sx={{ cursor: 'pointer' }}
-                    />
-                  ))}
-                </Stack>
-              </Box>
-
-              {/* Soft Skills */}
+              {/* Pesos de evaluación */}
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                  Habilidades Blandas Requeridas
+                  Pesos de Evaluación
                 </Typography>
                 <Divider sx={{ mb: 3 }} />
               </Box>
 
-              <Box>
-                <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                  <TextField
-                    fullWidth
-                    label="Agregar habilidad blanda"
-                    value={newSoftSkill}
-                    onChange={(e) => setNewSoftSkill(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleAddSoftSkill();
-                      }
-                    }}
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6}>
+                  <Controller
+                    name="peso_experiencia"
+                    control={control}
+                    render={({ field }) => (
+                      <Box>
+                        <Typography gutterBottom>
+                          Peso de experiencia: {field.value}
+                        </Typography>
+                        <Slider
+                          {...field}
+                          min={0}
+                          max={1}
+                          step={0.1}
+                          valueLabelDisplay="auto"
+                          valueLabelFormat={(value) => `${(value * 100).toFixed(0)}%`}
+                        />
+                        {errors.peso_experiencia && (
+                          <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+                            {errors.peso_experiencia.message}
+                          </Typography>
+                        )}
+                      </Box>
+                    )}
                   />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Controller
+                    name="peso_educacion"
+                    control={control}
+                    render={({ field }) => (
+                      <Box>
+                        <Typography gutterBottom>
+                          Peso de educación: {field.value}
+                        </Typography>
+                        <Slider
+                          {...field}
+                          min={0}
+                          max={1}
+                          step={0.1}
+                          valueLabelDisplay="auto"
+                          valueLabelFormat={(value) => `${(value * 100).toFixed(0)}%`}
+                        />
+                        {errors.peso_educacion && (
+                          <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+                            {errors.peso_educacion.message}
+                          </Typography>
+                        )}
+                      </Box>
+                    )}
+                  />
+                </Grid>
+              </Grid>
+
+              <Controller
+                name="puntaje_corte"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Puntaje de corte (0-100)"
+                    type="number"
+                    inputProps={{ min: 0, max: 100 }}
+                    error={!!errors.puntaje_corte}
+                    helperText={errors.puntaje_corte?.message}
+                    required
+                  />
+                )}
+              />
+
+              {/* Habilidades requeridas */}
+              <Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    Habilidades Requeridas
+                  </Typography>
                   <Button
                     variant="outlined"
                     startIcon={<Add />}
-                    onClick={handleAddSoftSkill}
-                    disabled={!newSoftSkill.trim()}
+                    onClick={addHabilidad}
                   >
-                    Agregar
+                    Agregar Habilidad
                   </Button>
                 </Box>
-                
-                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 2 }}>
-                  {softSkills.map((skill) => (
-                    <Chip
-                      key={skill}
-                      label={skill}
-                      onDelete={() => handleRemoveSoftSkill(skill)}
-                      color="secondary"
-                      variant="outlined"
-                    />
-                  ))}
-                </Stack>
-
-                {errors.softSkills && (
-                  <Alert severity="error" sx={{ mt: 1 }}>
-                    {errors.softSkills.message}
-                  </Alert>
-                )}
-
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                  Habilidades sugeridas:
-                </Typography>
-                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                  {softSkillsOptions.slice(0, 10).map((skill) => (
-                    <Chip
-                      key={skill}
-                      label={skill}
-                      size="small"
-                      variant="outlined"
-                      onClick={() => {
-                        if (!softSkills.includes(skill)) {
-                          setValue('softSkills', [...softSkills, skill]);
-                        }
-                      }}
-                      sx={{ cursor: 'pointer' }}
-                    />
-                  ))}
-                </Stack>
+                <Divider sx={{ mb: 3 }} />
               </Box>
+
+              {fields.map((field, index) => (
+                <Paper key={field.id} variant="outlined" sx={{ p: 3 }}>
+                  <Grid container spacing={2} alignItems="center">
+                    <Grid item xs={12} sm={4}>
+                      <Controller
+                        name={`vacante_habilidades.${index}.habilidad_id`}
+                        control={control}
+                        render={({ field }) => (
+                          <FormControl fullWidth error={!!errors.vacante_habilidades?.[index]?.habilidad_id}>
+                            <InputLabel>Habilidad</InputLabel>
+                            <Select {...field} label="Habilidad">
+                              {habilidades.map((habilidad) => (
+                                <MenuItem key={habilidad.id_habilidad} value={habilidad.id_habilidad}>
+                                  {habilidad.nombre} ({habilidad.tipo})
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={2}>
+                      <Controller
+                        name={`vacante_habilidades.${index}.nivel_requerido`}
+                        control={control}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            fullWidth
+                            label="Nivel (1-5)"
+                            type="number"
+                            inputProps={{ min: 1, max: 5 }}
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={2}>
+                      <Controller
+                        name={`vacante_habilidades.${index}.peso`}
+                        control={control}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            fullWidth
+                            label="Peso (0-100)"
+                            type="number"
+                            inputProps={{ min: 0, max: 100 }}
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={2}>
+                      <Controller
+                        name={`vacante_habilidades.${index}.critica`}
+                        control={control}
+                        render={({ field }) => (
+                          <FormControlLabel
+                            control={<Checkbox {...field} checked={field.value} />}
+                            label="Crítica"
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={2}>
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        startIcon={<Delete />}
+                        onClick={() => remove(index)}
+                        fullWidth
+                      >
+                        Eliminar
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Paper>
+              ))}
 
               {/* Actions */}
               <Box>
