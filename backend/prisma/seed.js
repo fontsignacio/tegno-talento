@@ -46,7 +46,7 @@ async function main() {
   // Puestos
   const devFrontend = await prisma.puesto.create({
     data: {
-      nombre: "Desarrollador Frontend",
+      nombre: "Programador/a - Desarrollador/a de Software",
       descripcion: "Especialista en interfaces de usuario con React",
       area_id: tecnologia.id_area,
     },
@@ -54,7 +54,7 @@ async function main() {
 
   const analistaDatos = await prisma.puesto.create({
     data: {
-      nombre: "Analista de Datos",
+      nombre: "Analista de Sistemas",
       descripcion: "Análisis e interpretación de datos",
       area_id: analisis.id_area,
     },
@@ -62,7 +62,23 @@ async function main() {
 
   const diseniadorUX = await prisma.puesto.create({
     data: {
-      nombre: "Diseñador UX/UI",
+      nombre: "Tester / QA (Aseguramiento de la Calidad)",
+      descripcion: "Diseño de experiencias de usuario",
+      area_id: diseno.id_area,
+    },
+  });
+  
+  const especialistaDatos = await prisma.puesto.create({
+    data: {
+      nombre: "Especialista en IA / Ciencia de Datos",
+      descripcion: "Diseño de experiencias de usuario",
+      area_id: diseno.id_area,
+    },
+  });
+
+  const adminRedes = await prisma.puesto.create({
+    data: {
+      nombre: "Administrador/a de Sistemas y Redes",
       descripcion: "Diseño de experiencias de usuario",
       area_id: diseno.id_area,
     },
