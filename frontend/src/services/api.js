@@ -75,30 +75,20 @@ export const getHabilidadesByTipo = async (tipo) => {
 
 // ===== SERVICIO DE CHATBOT (MOCK) =====
 export const getChatbotResponse = async (message) => {
-  await new Promise(resolve => setTimeout(resolve, 1000));
-
-  // Respuesta simple basada en palabras clave
-  const lowerMessage = message.toLowerCase();
-
-  if (lowerMessage.includes('hola') || lowerMessage.includes('hi')) {
-    return { data: { response: mockChatbotResponses[0] } };
+  try {const response = await fetch('http://10.129.218.197:5678/webhook/chatbot', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ question: message }),
+  })
+  if (!response.ok) {
+    throw new Error('Error al obtener la respuesta del chatbot');
   }
-
-  if (lowerMessage.includes('perfil') || lowerMessage.includes('perfiles')) {
-    return { data: { response: mockChatbotResponses[2] } };
+  const msg = await response.text();
+  console.log('res:',response.text());
+  return {data: {response: msg}}; } catch (error) {
+    console.error('Error al obtener la respuesta del chatbot:', error);
+    throw error;
+    }
   }
-
-  if (lowerMessage.includes('vacante') || lowerMessage.includes('vacantes')) {
-    return { data: { response: mockChatbotResponses[3] } };
-  }
-
-  if (lowerMessage.includes('ayuda') || lowerMessage.includes('help')) {
-    return { data: { response: mockChatbotResponses[1] } };
-  }
-
-  // Respuesta aleatoria
-  const randomResponse = mockChatbotResponses[Math.floor(Math.random() * mockChatbotResponses.length)];
-  return { data: { response: randomResponse } };
-};
-
-export default api;
