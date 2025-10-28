@@ -97,6 +97,9 @@ export const getProfileById = async (id: number) => {
       puesto_id: puesto.id_puesto,
       tipo_empleado: tipo_empleado.EXTERNO
     },
+    include: {
+      puesto: true,
+    }
   });
 
   const latestVacante = puesto.vacantes[0];
