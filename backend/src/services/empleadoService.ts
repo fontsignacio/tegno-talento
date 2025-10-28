@@ -24,7 +24,8 @@ export const getAllEmpleados = async (filters: { tipo_empleado?: string; puesto_
         include: {
           habilidad: true
         }
-      }
+      },
+      respuestas_formulario: true
     }
   });
 };
@@ -42,7 +43,8 @@ export const getEmpleadoById = async (id: number) => {
         include: {
           habilidad: true
         }
-      }
+      },
+      respuestas_formulario: true
     }
   });
 };

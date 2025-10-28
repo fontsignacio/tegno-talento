@@ -25,6 +25,7 @@ import {
 } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCandidateQuery } from '../../hooks/useCandidatesQuery';
+import FormResponses from '../../components/FormResponses/FormResponses';
 
 const CandidateDetail = () => {
   const { id } = useParams();
@@ -198,6 +199,11 @@ const CandidateDetail = () => {
                 </Stack>
               </Paper>
             </Box>
+          )}
+
+          {/* Form Responses */}
+          {candidate.respuestas_formulario && candidate.respuestas_formulario.length > 0 && (
+            <FormResponses responses={candidate.respuestas_formulario} />
           )}
 
         </Box>
